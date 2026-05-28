@@ -253,7 +253,7 @@ const RESTAURANTS = [
   {
     "id": "r_10",
     "district": "mapo",
-    "nameCN": "自然島鹽麵包延南店",
+    "nameCN": "自然島鹽可頌",
     "nameKR": "자연도소금빵",
     "lat": 37.55971179779057,
     "lng": 126.92435372523332,
@@ -913,7 +913,7 @@ const RESTAURANTS = [
   {
     "id": "r_44",
     "district": "mapo",
-    "nameCN": "肉夢 弘大本店",
+    "nameCN": "肉夢",
     "nameKR": "맛집 육몽",
     "lat": 37.553600263314785,
     "lng": 126.92059782139611,
