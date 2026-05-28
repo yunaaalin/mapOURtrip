@@ -116,6 +116,7 @@ function refreshCurrentView() {
   else if (S.view === 'donglist') renderDongListView();
   else if (S.view === 'categorylist') renderCategoryListView();
   else if (S.view === 'musteatlist') renderMustEatListView();
+  else if (S.view === 'theaterlist') renderTheaterListView();
 }
 
 // ── Lightweight Toast Notification ──
@@ -930,6 +931,7 @@ function renderHome() {
         <button class="btn-pill" onclick="renderDongListView()">⊞ 區域清單</button>
         <button class="btn-pill btn-category-list" onclick="renderCategoryListView()">⊞ 分類清單</button>
         <button class="btn-pill btn-must-eat" onclick="renderMustEatListView()">⭐ 我必須吃到！</button>
+        <button class="btn-pill btn-theater-list" onclick="renderTheaterListView()">🎭 劇場清單</button>
       </div>
     </div>
   `;
@@ -1611,6 +1613,29 @@ function toggleDongSection(dongKR) {
   if (!listEl) return;
   const isOpen = listEl.classList.toggle('open');
   if (arr) arr.classList.toggle('open', isOpen);
+}
+
+// ── 「劇場清單」臨時分頁 ──
+function renderTheaterListView() {
+  hideTip();
+  S.view = 'theaterlist';
+  S.openDong = null;
+  S.gu = null;
+  
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="view theater-view">
+      <div class="theater-card-container">
+        <div class="theater-emoji">🎭✨</div>
+        <div class="theater-text">
+          網站全力建置中，本功能會在蕭小姐24歲後才開始開發。<br>
+          請您稍等<br>
+          好期待我們的首爾行哇(⌾ˉ ꒳ ˉ⌾)
+        </div>
+        <button class="btn-back" style="margin-top: 24px; padding: 10px 24px; font-size: 13px;" onclick="renderHome()">← 回到首頁</button>
+      </div>
+    </div>
+  `;
 }
 
 // ============================================================

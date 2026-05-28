@@ -1499,3 +1499,71 @@ body {
   }
 }
 
+/* Home pill theater list custom styling */
+.btn-theater-list {
+  border-color: #8A73B6;
+  color: #725D9B;
+  background: rgba(138, 115, 182, 0.07);
+}
+.btn-theater-list:hover {
+  background: rgba(138, 115, 182, 0.16);
+  border-color: #8A73B6;
+}
+
+/* Site footer copyright styling */
+.site-footer {
+  position: fixed;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+/* Theater list view subpage styling */
+.theater-view {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.theater-card-container {
+  text-align: center;
+  background: rgba(245, 239, 226, 0.65);
+  border: 1.5px solid rgba(138, 115, 182, 0.25);
+  border-radius: 24px;
+  padding: 40px 30px;
+  max-width: 90%;
+  width: 400px;
+  box-shadow: 0 8px 32px rgba(138, 115, 182, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: theaterCardScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes theaterCardScale {
+  from { transform: scale(0.9) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.theater-emoji {
+  font-size: 48px;
+  margin-bottom: 20px;
+  animation: theaterFloat 3s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes theaterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.theater-text {
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: #554477;
+  font-weight: 500;
+}
+
+
