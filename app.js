@@ -108,6 +108,7 @@ function refreshCurrentView() {
   else if (S.view === 'gu') gotoGu(S.gu);
   else if (S.view === 'dong') gotoDong(S.dong);
   else if (S.view === 'donglist') renderDongListView();
+  else if (S.view === 'categorylist') renderCategoryListView();
   else if (S.view === 'musteatlist') renderMustEatListView();
 }
 
@@ -151,6 +152,127 @@ function getStarPoints(cx, cy, spikes = 5, outerRadius = 9, innerRadius = 4.2) {
     rot += step;
   }
   return points.join(' ');
+}
+
+// ── Reusable Pan & Zoom + Overlap Prevention ──
+function setupPanZoom(svgId) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+
+  let zoomGroup = svg.querySelector('.zoom-group');
+  if (!zoomGroup) {
+    zoomGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    zoomGroup.setAttribute('class', 'zoom-group');
+    while (svg.firstChild) {
+      zoomGroup.appendChild(svg.firstChild);
+    }
+    svg.appendChild(zoomGroup);
+  }
+
+  let scale = 1;
+  let tx = 0;
+  let ty = 0;
+  let isPanning = false;
+  let startX = 0;
+  let startY = 0;
+
+  function updateTransform() {
+    zoomGroup.setAttribute('transform', `translate(${tx}, ${ty}) scale(${scale})`);
+    
+    const dotCircles = zoomGroup.querySelectorAll('.dot-circle');
+    const dotStars   = zoomGroup.querySelectorAll('.dot-star');
+    const dotLabels  = zoomGroup.querySelectorAll('.dot-label');
+    const hotelCircle = zoomGroup.querySelectorAll('.hotel-dot circle');
+    const hotelText   = zoomGroup.querySelectorAll('.hotel-dot text');
+
+    const shrinkFactor = Math.sqrt(scale);
+
+    dotCircles.forEach(c => {
+      c.setAttribute('r', (5.5 / shrinkFactor).toFixed(1));
+      c.style.strokeWidth = (1.5 / shrinkFactor).toFixed(1);
+    });
+
+    dotStars.forEach(s => {
+      s.style.transform = `scale(${1 / shrinkFactor})`;
+      s.style.transformOrigin = 'center';
+      s.style.transformBox = 'fill-box';
+    });
+
+    dotLabels.forEach(l => {
+      const parent = l.parentNode;
+      const targetDot = parent.querySelector('circle, polygon');
+      if (targetDot) {
+        const isStar = targetDot.classList.contains('dot-star');
+        const ry = parseFloat(targetDot.getAttribute('cy') || 0);
+        l.style.fontSize = `${(8 / shrinkFactor).toFixed(1)}px`;
+        l.style.strokeWidth = `${(2.5 / shrinkFactor).toFixed(1)}px`;
+        l.setAttribute('y', (ry - (isStar ? 10 : 12) / shrinkFactor).toFixed(1));
+      }
+    });
+
+    if (hotelCircle.length) {
+      hotelCircle[0].setAttribute('r', (8 / shrinkFactor).toFixed(1));
+    }
+    if (hotelText.length) {
+      hotelText[0].style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
+    }
+    
+    const guDongLabels = zoomGroup.querySelectorAll('.gu-dong-label');
+    const guDongCnt    = zoomGroup.querySelectorAll('.gu-dong-cnt');
+    if (guDongLabels.length) {
+      guDongLabels.forEach(l => {
+        l.style.fontSize = `${(12 / shrinkFactor).toFixed(1)}px`;
+      });
+      guDongCnt.forEach(c => {
+        l.style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
+      });
+    }
+  }
+
+  svg.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const svgMouseX = (mouseX - tx) / scale;
+    const svgMouseY = (mouseY - ty) / scale;
+
+    const zoomFactor = 1.15;
+    if (e.deltaY < 0) {
+      scale = Math.min(scale * zoomFactor, 8);
+    } else {
+      scale = Math.max(scale / zoomFactor, 0.8);
+    }
+
+    tx = mouseX - svgMouseX * scale;
+    ty = mouseY - svgMouseY * scale;
+
+    updateTransform();
+  }, { passive: false });
+
+  svg.addEventListener('mousedown', e => {
+    isPanning = true;
+    startX = e.clientX - tx;
+    startY = e.clientY - ty;
+    svg.style.cursor = 'grabbing';
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!isPanning) return;
+    tx = e.clientX - startX;
+    ty = e.clientY - startY;
+    updateTransform();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isPanning) return;
+    isPanning = false;
+    svg.style.cursor = 'grab';
+  });
+  
+  svg.style.cursor = 'grab';
+  svg.style.userSelect = 'none';
 }
 
 // ============================================================
@@ -395,7 +517,8 @@ function renderHome() {
         </svg>
       </div>
       <div class="home-footer">
-        <button class="btn-pill" onclick="renderDongListView()">⊞ 全部清單</button>
+        <button class="btn-pill" onclick="renderDongListView()">⊞ 區域清單</button>
+        <button class="btn-pill btn-category-list" onclick="renderCategoryListView()">⊞ 分類清單</button>
         <button class="btn-pill btn-must-eat" onclick="renderMustEatListView()">⭐ 我必須吃到！</button>
       </div>
     </div>
@@ -489,6 +612,7 @@ function gotoGu(guName) {
       </div>
     </div>
   `;
+  setupPanZoom('gu-svg');
 }
 
 // ============================================================
@@ -568,6 +692,7 @@ function gotoDong(dongKR, highlightId = null) {
       </div>
     </div>
   `;
+  setupPanZoom('dist-svg');
 
   if (highlightId) setTimeout(() => blinkDot(highlightId), 200);
 }
@@ -577,30 +702,12 @@ function blinkDot(restaurantId) {
   if (!dotG) return;
   const target = dotG.querySelector('.dot-circle') || dotG.querySelector('.dot-star');
   if (!target) return;
-  const isStar = target.classList.contains('dot-star');
-  let count = 0;
-  function step() {
-    if (count >= 6) {
-      if (isStar) {
-        target.style.transform = 'scale(1)';
-      } else {
-        target.setAttribute('r', 7);
-      }
-      target.style.opacity = '1';
-      setTimeout(() => renderHome(), 400);
-      return;
-    }
-    const even = count % 2 === 0;
-    if (isStar) {
-      target.style.transform = even ? 'scale(1.7)' : 'scale(1)';
-    } else {
-      target.setAttribute('r', even ? 13 : 7);
-    }
-    target.style.opacity = even ? '0.25' : '1';
-    count++;
-    setTimeout(step, 350);
-  }
-  step();
+  
+  target.classList.add('dot-highlight-pulse');
+  
+  setTimeout(() => {
+    target.classList.remove('dot-highlight-pulse');
+  }, 2000);
 }
 
 // ============================================================
@@ -880,6 +987,60 @@ function checkAndImportSharedList() {
     }
     history.replaceState(null, document.title, window.location.pathname + window.location.search);
   }
+}
+
+// ── 「分類清單」頁面 ──
+function renderCategoryListView() {
+  S.view = 'categorylist';
+  S.openDong = null;
+  S.gu = null;
+
+  const app = document.getElementById('app');
+
+  const cats = [...new Set(RESTAURANTS.map(r => r.category).filter(Boolean))];
+
+  const sectionsHTML = cats.map(cat => {
+    const rests = RESTAURANTS.filter(r => r.category === cat)
+      .sort((a, b) => haversine(HOTEL.lat, HOTEL.lng, a.lat, a.lng) - haversine(HOTEL.lat, HOTEL.lng, b.lat, b.lng));
+    const col = catColor(cat);
+
+    const cardsHTML = rests.map(r => {
+      const hashBadges = r.hashtags.map(h => `<span class="m-hash">#${h}</span>`).join('');
+      return `
+        <div class="rest-card" onclick="openModal('${r.id}')">
+          <span class="rest-card-dot" style="background:${col}"></span>
+          <div class="rest-card-info">
+            <div class="rest-card-cn">${r.nameCN}</div>
+            <div class="rest-card-kr">${dongCN(r.dongKR)} · ${r.nameKR || ''}</div>
+            ${r.hashtags.length ? `<div class="rest-card-tags">${hashBadges}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="cat-section">
+        <div class="cat-section-hd" onclick="toggleDongSection('${safeAttr(cat)}')">
+          <span class="cat-dot-badge" style="background:${col}"></span>
+          <div class="cat-section-name-block">
+            <span class="cat-section-name">${cat}</span>
+          </div>
+          <span class="cat-section-cnt">${rests.length} 間</span>
+          <span class="cat-arrow" id="arr-${safeAttr(cat)}">›</span>
+        </div>
+        <div class="inline-rest-list" id="list-${safeAttr(cat)}">${cardsHTML}</div>
+      </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="view cat-view">
+      <div class="cat-header">
+        <button class="btn-back" onclick="renderHome()">← 首頁</button>
+        <span class="cat-header-title">分類清單</span>
+        <span class="cat-header-sub">${RESTAURANTS.length} 間</span>
+      </div>
+      <div class="cat-body">${sectionsHTML}</div>
+    </div>
+  `;
 }
 
 function openCategoryList(catKey) {

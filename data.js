@@ -6,21 +6,66 @@ const HOTEL = {
 };
 
 const DISTRICTS = {
-  'mapo': { nameCN: '麻浦區', nameKR: '마포구' },
-  'jongno': { nameCN: '鐘路區', nameKR: '종로구' },
-  'jung': { nameCN: '中區', nameKR: '중구' },
-  'yongsan': { nameCN: '龍山區', nameKR: '용산구' },
-  'gangnam': { nameCN: '江南區', nameKR: '강남구' },
-  'seongdong': { nameCN: '城東區', nameKR: '성동구' },
-  'dongdaemun': { nameCN: '東大門區', nameKR: '동대문구' },
-  'seodaemun': { nameCN: '西大門區', nameKR: '서대문구' },
-  'seocho': { nameCN: '瑞草區', nameKR: '서초구' },
-  'yeongdeungpo': { nameCN: '永登浦區', nameKR: '영등포구' },
-  'eunpyeong': { nameCN: '恩平區', nameKR: '은평구' },
-  'nowon': { nameCN: '蘆原區', nameKR: '노원구' },
-  'seongbuk': { nameCN: '城北區', nameKR: '성북구' },
-  'gwangjin': { nameCN: '廣津區', nameKR: '광진구' },
-  'songpa': { nameCN: '松坡區', nameKR: '송파구' }
+  "mapo": {
+    "nameCN": "麻浦區",
+    "nameKR": "마포구"
+  },
+  "jongno": {
+    "nameCN": "鐘路區",
+    "nameKR": "종로구"
+  },
+  "jung": {
+    "nameCN": "中區",
+    "nameKR": "중구"
+  },
+  "yongsan": {
+    "nameCN": "龍山區",
+    "nameKR": "용산구"
+  },
+  "gangnam": {
+    "nameCN": "江南區",
+    "nameKR": "강남구"
+  },
+  "seongdong": {
+    "nameCN": "城東區",
+    "nameKR": "성동구"
+  },
+  "dongdaemun": {
+    "nameCN": "東大門區",
+    "nameKR": "동대문구"
+  },
+  "seodaemun": {
+    "nameCN": "西大門區",
+    "nameKR": "서대문구"
+  },
+  "seocho": {
+    "nameCN": "瑞草區",
+    "nameKR": "서초구"
+  },
+  "yeongdeungpo": {
+    "nameCN": "永登浦區",
+    "nameKR": "영등포구"
+  },
+  "eunpyeong": {
+    "nameCN": "恩平區",
+    "nameKR": "은평구"
+  },
+  "nowon": {
+    "nameCN": "蘆原區",
+    "nameKR": "노원구"
+  },
+  "seongbuk": {
+    "nameCN": "城北區",
+    "nameKR": "성북구"
+  },
+  "gwangjin": {
+    "nameCN": "廣津區",
+    "nameKR": "광진구"
+  },
+  "songpa": {
+    "nameCN": "松坡區",
+    "nameKR": "송파구"
+  }
 };
 
 const CATEGORY_COLORS = {
@@ -38,11 +83,11 @@ const CATEGORY_COLORS = {
 const RESTAURANTS = [
   {
     "id": "r_1",
-    "district": "mapo",
+    "district": "seodaemun",
     "nameCN": "日記",
     "nameKR": "일기",
-    "lat": 37.5651698,
-    "lng": 126.9184623,
+    "lat": 37.5652633080296,
+    "lng": 126.92318197854732,
     "category": "漂亮咖",
     "hashtags": [],
     "googleRating": "5.0",
@@ -50,8 +95,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "法式吐司",
     "addressEN": "18 Seongmisan-ro 29an-gil, Yeonnam-dong, Seoul",
-    "dongKR": "성산2동",
-    "dongEN": "Seongsan 2(i)-dong",
+    "dongKR": "연희동",
+    "dongEN": "Yeonhui-dong",
     "naverUrl": "https://map.naver.com/p/entry/place/1072280224?placePath=%2Fhome",
     "googleUrl": "https://maps.app.goo.gl/qcx7TZZzVZ2MqsKW6"
   },
@@ -60,8 +105,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "Tis Snack Bar",
     "nameKR": "티스 스낵바",
-    "lat": 37.5627309,
-    "lng": 126.9205997,
+    "lat": 37.56000611449929,
+    "lng": 126.92639656323402,
     "category": "漂亮咖",
     "hashtags": [],
     "googleRating": "4.3",
@@ -79,8 +124,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "乙支餃子",
     "nameKR": "을지만두",
-    "lat": 37.567743,
-    "lng": 127.003429,
+    "lat": 37.567799785243054,
+    "lng": 127.00816192379439,
     "category": "點心",
     "hashtags": [
       "鳥屎推薦",
@@ -101,8 +146,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "Garlic Boy",
     "nameKR": "갈릭보이",
-    "lat": 37.5702831,
-    "lng": 126.9939503,
+    "lat": 37.57029654438751,
+    "lng": 126.99870004874413,
     "category": "點心",
     "hashtags": [
       "廣藏市場",
@@ -123,8 +168,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "Abebe Bakery",
     "nameKR": "아베베베이커리",
-    "lat": 37.5707114,
-    "lng": 126.9955946,
+    "lat": 37.56963000154928,
+    "lng": 126.99993613470386,
     "category": "點心",
     "hashtags": [
       "廣藏市場",
@@ -145,8 +190,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "廣藏糖餅",
     "nameKR": "광장호떡",
-    "lat": 37.5707114,
-    "lng": 126.9955946,
+    "lat": 37.570712825870885,
+    "lng": 127.00050463281508,
     "category": "點心",
     "hashtags": [
       "廣藏市場",
@@ -157,8 +202,8 @@ const RESTAURANTS = [
     "featuredDish": "蜂蜜、紅豆、起司",
     "IGreels": "",
     "addressEN": "206 Jong-ro, Jongno 5(o)-ga, Jongno District, Seoul",
-    "dongKR": "종로1·2·3·4가동",
-    "dongEN": "Jongno1·2·3·4Gadong",
+    "dongKR": "종로5·6가동",
+    "dongEN": "Jongno5·6Gadong",
     "naverUrl": "https://naver.me/xl0Dyxqh",
     "googleUrl": "https://maps.app.goo.gl/Q3x8Sq4sBiJsnRtLA"
   },
@@ -167,8 +212,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "廣藏市場糯米麻花捲",
     "nameKR": "광장시장 찹쌀꽈배기",
-    "lat": 37.5707114,
-    "lng": 126.9955946,
+    "lat": 37.570696279743174,
+    "lng": 127.00020584217398,
     "category": "點心",
     "hashtags": [
       "廣藏市場",
@@ -189,8 +234,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "自然島鹽可頌",
     "nameKR": "자연도소금빵",
-    "lat": 37.5423017,
-    "lng": 127.0506946,
+    "lat": 37.54240883178305,
+    "lng": 127.05535314769233,
     "category": "點心",
     "hashtags": [
       "麵包"
@@ -200,8 +245,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "56-1 Yeonmujang-gil, Seongdong-gu, Seoul",
-    "dongKR": "성수1가2동",
-    "dongEN": "Seongsu1(il)-ga2(i)-dong",
+    "dongKR": "성수2가3동",
+    "dongEN": "Seongsu 2(i)-ga 3(sam)-dong",
     "naverUrl": "https://naver.me/xUw1qmBE",
     "googleUrl": "https://maps.app.goo.gl/NWxkVnHBQkBXcMjP9"
   },
@@ -210,8 +255,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "自然島鹽麵包延南店",
     "nameKR": "자연도소금빵",
-    "lat": 37.5596494,
-    "lng": 126.9195969,
+    "lat": 37.55971179779057,
+    "lng": 126.92435372523332,
     "category": "點心",
     "hashtags": [
       "麵包"
@@ -231,8 +276,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "Hanib Bagel",
     "nameKR": "한입베이글",
-    "lat": 37.5413935,
-    "lng": 127.0414793,
+    "lat": 37.541446375269956,
+    "lng": 127.04626120257495,
     "category": "點心",
     "hashtags": [
       "麵包"
@@ -252,8 +297,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "雨耳樂",
     "nameKR": "우이락 망원본점",
-    "lat": 37.556453,
-    "lng": 126.9012231,
+    "lat": 37.556462775781085,
+    "lng": 126.90594519964782,
     "category": "點心",
     "hashtags": [
       "望遠市場",
@@ -274,8 +319,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "勳勳糖餅",
     "nameKR": "훈훈호떡",
-    "lat": 37.556453,
-    "lng": 126.9012231,
+    "lat": 37.55593850138689,
+    "lng": 126.9063636809724,
     "category": "點心",
     "hashtags": [
       "望遠市場",
@@ -296,8 +341,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "韓貞仙",
     "nameKR": "한정선",
-    "lat": 37.5428451,
-    "lng": 127.0494054,
+    "lat": 37.54288729937332,
+    "lng": 127.0541684849995,
     "category": "點心",
     "hashtags": [
       "大福"
@@ -307,8 +352,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "杜拜巧克力、巧克力草莓、紅豆草莓、艾草紅豆草莓、紅豆奶油、橘子、柿子、奇異果、麝香葡萄、鳳梨口味",
     "addressEN": "Seoul, Seongdong-gu, Yeonmujang-gil, 43 1 1F",
-    "dongKR": "성수1가2동",
-    "dongEN": "Seongsu1(il)-ga2(i)-dong",
+    "dongKR": "성수2가3동",
+    "dongEN": "Seongsu 2(i)-ga 3(sam)-dong",
     "naverUrl": "https://naver.me/F9N46G4y",
     "googleUrl": "https://maps.app.goo.gl/45zvnBgxbVrWsynS7"
   },
@@ -317,8 +362,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "Le Freak",
     "nameKR": "르프리크",
-    "lat": 37.5428451,
-    "lng": 127.0494054,
+    "lat": 37.54453794817913,
+    "lng": 127.0526830592445,
     "category": "點心",
     "hashtags": [
       "漢堡"
@@ -338,8 +383,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "萬培阿里郎菜包肉",
     "nameKR": "만배아리랑보쌈",
-    "lat": 37.5488741,
-    "lng": 126.857615,
+    "lat": 37.54917400626818,
+    "lng": 126.86244184613925,
     "category": "韓式鹹食",
     "hashtags": [
       "白切肉"
@@ -349,8 +394,8 @@ const RESTAURANTS = [
     "IGreels": "https://www.instagram.com/reel/DXQliiHE2VZ/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==",
     "featuredDish": "豬頸背肉泡菜包飯、海鮮蛤蠣刀削麵",
     "addressEN": "17 Deungchon-ro 51-gil, Gangseo-gu, Seoul",
-    "dongKR": "화곡6동",
-    "dongEN": "Hwagok 6(yuk)-dong",
+    "dongKR": "등촌2동",
+    "dongEN": "Deungchon 2(i)-dong",
     "naverUrl": "https://naver.me/GG7tTMkh",
     "googleUrl": "https://maps.app.goo.gl/YcB3qwxnmxSyJob97"
   },
@@ -359,8 +404,8 @@ const RESTAURANTS = [
     "district": "yongsan",
     "nameCN": "高豆里",
     "nameKR": "고두리",
-    "lat": 37.5312419,
-    "lng": 126.9642102,
+    "lat": 37.53142959619399,
+    "lng": 126.96883337019365,
     "category": "韓式鹹食",
     "hashtags": [
       "豆腐料理"
@@ -380,8 +425,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "QS炸雞",
     "nameKR": "큐스닭강정",
-    "lat": 37.5562557,
-    "lng": 126.9014736,
+    "lat": 37.55633423473403,
+    "lng": 126.90623677945798,
     "category": "韓式鹹食",
     "hashtags": [
       "望遠市場",
@@ -402,8 +447,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "元祖裸飯捲",
     "nameKR": "원조누드치즈김밥",
-    "lat": 37.5707114,
-    "lng": 126.9955946,
+    "lat": 37.570532822281315,
+    "lng": 126.99881861506704,
     "category": "韓式鹹食",
     "hashtags": [
       "廣藏市場",
@@ -424,11 +469,11 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "申美京弘大辣炒雞排",
     "nameKR": "신미경 홍대닭갈비",
-    "lat": 37.5521114,
-    "lng": 126.9171338,
+    "lat": 37.552353714735695,
+    "lng": 126.92188976323828,
     "category": "韓式鹹食",
     "hashtags": [
-      "辣炒雞"
+      "蕭芝芹說一定要吃到的辣炒雞"
     ],
     "googleRating": "4.6",
     "googleReviews": "1618份",
@@ -445,8 +490,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "韓式馬鈴薯丸湯",
     "nameKR": "옹시미",
-    "lat": 37.5586679,
-    "lng": 126.9173299,
+    "lat": 37.558829775544446,
+    "lng": 126.92207282660203,
     "category": "韓式鹹食",
     "hashtags": [
       "蕎麥煎餅",
@@ -457,8 +502,8 @@ const RESTAURANTS = [
     "IGreels": "https://www.instagram.com/reel/DWgS1xskQFM/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==",
     "featuredDish": "",
     "addressEN": "Seoul, Mapo-gu, World Cup buk-ro 4-gil, 59 1층",
-    "dongKR": "성산1동",
-    "dongEN": "Seongsan 1(il)-dong",
+    "dongKR": "연남동",
+    "dongEN": "Yeonnam-dong",
     "naverUrl": "https://naver.me/xv3DN2qg",
     "googleUrl": "https://maps.app.goo.gl/mxJxER2iPTrQAWqZA"
   },
@@ -467,8 +512,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "豬腳小姐",
     "nameKR": "미쓰족발",
-    "lat": 37.5646015,
-    "lng": 126.9786357,
+    "lat": 37.56480447041299,
+    "lng": 126.98343479153587,
     "category": "韓式鹹食",
     "hashtags": [
       "豬腳"
@@ -488,8 +533,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "豬腳小姐",
     "nameKR": "미쓰족발",
-    "lat": 37.5556851,
-    "lng": 126.9189785,
+    "lat": 37.55583068170859,
+    "lng": 126.92366110267096,
     "category": "韓式鹹食",
     "hashtags": [
       "豬腳"
@@ -509,8 +554,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "Solsot Pot Rice",
     "nameKR": "솔솥",
-    "lat": 37.5742323,
-    "lng": 126.9854187,
+    "lat": 37.57437972166945,
+    "lng": 126.99017356672171,
     "category": "韓式鹹食",
     "hashtags": [
       "釜飯"
@@ -520,8 +565,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "牛排、鰻魚",
     "addressEN": "1층, 46 Samil-daero 30-gil, Jongno District, Seoul",
-    "dongKR": "삼청동",
-    "dongEN": "Samcheong-dong",
+    "dongKR": "가회동",
+    "dongEN": "Gahoe-dong",
     "naverUrl": "https://naver.me/FjbnsEfv",
     "googleUrl": "https://maps.app.goo.gl/zLdiWCDsC9Ln5CPH7"
   },
@@ -530,8 +575,8 @@ const RESTAURANTS = [
     "district": "seongbuk",
     "nameCN": "八百家",
     "nameKR": "팔백집",
-    "lat": 37.5864474,
-    "lng": 127.0250374,
+    "lat": 37.58655069729023,
+    "lng": 127.02980144517065,
     "category": "韓式鹹食",
     "hashtags": [
       "排骨"
@@ -551,8 +596,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "Hey George",
     "nameKR": "헤이죠지",
-    "lat": 37.5616852,
-    "lng": 126.9217859,
+    "lat": 37.561696333045596,
+    "lng": 126.92656609845942,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "4.9",
@@ -570,8 +615,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "HAVE",
     "nameKR": "해브 연남파스타",
-    "lat": 37.5608142,
-    "lng": 126.9199807,
+    "lat": 37.5618752803497,
+    "lng": 126.92605047035961,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "4.7",
@@ -589,8 +634,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "文化食堂",
     "nameKR": "문화식당",
-    "lat": 37.5654204,
-    "lng": 127.015065,
+    "lat": 37.5657210007695,
+    "lng": 127.01993758400434,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "4.5",
@@ -598,8 +643,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "蛋包飯、三合一義大利麵",
     "addressEN": "Seoul, Jung District, Sindang-dong, 140-3 2층",
-    "dongKR": "신당동",
-    "dongEN": "Sindang-dong",
+    "dongKR": "황학동",
+    "dongEN": "Hwanghak-dong",
     "naverUrl": "https://naver.me/GoD7vP4W",
     "googleUrl": "https://maps.app.goo.gl/wnydzvHpSMATqhH76"
   },
@@ -608,8 +653,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "兔子停",
     "nameKR": "토끼정",
-    "lat": 37.5538158,
-    "lng": 126.915441,
+    "lat": 37.55197218154435,
+    "lng": 126.9206657690827,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "4.3",
@@ -627,8 +672,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "兔子停",
     "nameKR": "토끼정",
-    "lat": 37.5551461,
-    "lng": 126.9662248,
+    "lat": 37.5553073483632,
+    "lng": 126.97102122363017,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "3.7",
@@ -646,8 +691,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "Hotel De GGOODD",
     "nameKR": "오뗄드꾸뜨",
-    "lat": 37.5627309,
-    "lng": 126.9205997,
+    "lat": 37.56295092968078,
+    "lng": 126.92528693833093,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "4.7",
@@ -663,10 +708,10 @@ const RESTAURANTS = [
   {
     "id": "r_34",
     "district": "mapo",
-    "nameCN": "연어롭다",
+    "nameCN": "十分三文魚",
     "nameKR": "연어롭다",
-    "lat": 37.5627309,
-    "lng": 126.9205997,
+    "lat": 37.56121742295383,
+    "lng": 126.92571412992987,
     "category": "義大利麵",
     "hashtags": [],
     "googleRating": "4.3",
@@ -684,8 +729,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "麻浦牛小腸城",
     "nameKR": "마포곱창타운",
-    "lat": 37.5590714,
-    "lng": 126.9177663,
+    "lat": 37.55951194234785,
+    "lng": 126.92269792610809,
     "category": "烤肉",
     "hashtags": [
       "烤腸"
@@ -694,18 +739,18 @@ const RESTAURANTS = [
     "googleReviews": "2334份",
     "IGreels": "https://www.instagram.com/reel/DWJhii_kmMQ/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==",
     "addressEN": "20 Donggyo-ro 27-gil, Mapo-gu, Seoul",
-    "dongKR": "성산1동",
-    "dongEN": "Seongsan 1(il)-dong",
+    "dongKR": "연남동",
+    "dongEN": "Yeonnam-dong",
     "naverUrl": "https://naver.me/59voptcA",
     "googleUrl": "https://maps.app.goo.gl/kSGXfZRnHTaZMsLb8"
   },
   {
     "id": "r_36",
     "district": "mapo",
-    "nameCN": "",
+    "nameCN": "天使烤腸",
     "nameKR": "천사곱창",
-    "lat": 37.5525314,
-    "lng": 126.9172061,
+    "lat": 37.55281129100612,
+    "lng": 126.92186511023914,
     "category": "烤肉",
     "hashtags": [
       "烤腸"
@@ -725,8 +770,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "第一烤腸",
     "nameKR": "제일곱창",
-    "lat": 37.5525314,
-    "lng": 126.9172061,
+    "lat": 37.55295855988006,
+    "lng": 126.92233182621861,
     "category": "烤肉",
     "hashtags": [
       "烤腸"
@@ -743,11 +788,11 @@ const RESTAURANTS = [
   },
   {
     "id": "r_38",
-    "district": "seocho",
+    "district": "gangnam",
     "nameCN": "新沙烤牛腸",
     "nameKR": "신사소곱창",
-    "lat": 37.5177281,
-    "lng": 127.0167586,
+    "lat": 37.51800331518248,
+    "lng": 127.0214520703212,
     "category": "烤肉",
     "hashtags": [
       "烤腸"
@@ -757,8 +802,8 @@ const RESTAURANTS = [
     "featuredDish": "",
     "IGreels": "",
     "addressEN": "62 Apgujeong-ro 2-gil, Gangnam District, Seoul",
-    "dongKR": "잠원동",
-    "dongEN": "Jamwon-dong",
+    "dongKR": "신사동",
+    "dongEN": "Sinsa-dong",
     "naverUrl": "https://naver.me/xucpY7ad",
     "googleUrl": "https://maps.app.goo.gl/7XpPjUUWnJ3cTJ6X9"
   },
@@ -767,8 +812,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "喉嚨水芹菜烤肉",
     "nameKR": "목구멍 홍대입구역점",
-    "lat": 37.5586679,
-    "lng": 126.9173299,
+    "lat": 37.557077696819455,
+    "lng": 126.92058925529835,
     "category": "烤肉",
     "hashtags": [
       "水芹菜"
@@ -778,8 +823,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "Seoul, Mapo-gu, World Cup buk-ro 4-gil, 8 1층",
-    "dongKR": "성산1동",
-    "dongEN": "Seongsan 1(il)-dong",
+    "dongKR": "연남동",
+    "dongEN": "Yeonnam-dong",
     "naverUrl": "https://naver.me/GUwSxgH4",
     "googleUrl": "https://maps.app.goo.gl/TPpm35Jk1eBQVk7U7"
   },
@@ -788,8 +833,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "The Grazing Pig",
     "nameKR": "풀뜯는돼지",
-    "lat": 37.5608142,
-    "lng": 126.9199807,
+    "lat": 37.561058528933664,
+    "lng": 126.92464938879996,
     "category": "烤肉",
     "hashtags": [
       "水芹菜"
@@ -809,8 +854,8 @@ const RESTAURANTS = [
     "district": "yongsan",
     "nameCN": "豬肉店",
     "nameKR": "도야집",
-    "lat": 37.5317635,
-    "lng": 126.9678499,
+    "lat": 37.53223958160214,
+    "lng": 126.97253167234624,
     "category": "烤肉",
     "hashtags": [],
     "googleRating": "4.7",
@@ -818,8 +863,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "27 Hangang-daero 52-gil, Yongsan District, Seoul",
-    "dongKR": "원효로1동",
-    "dongEN": "Wonhyoro1-dong",
+    "dongKR": "한강로동",
+    "dongEN": "Hangangnodong",
     "naverUrl": "https://naver.me/GJTiGMwx",
     "googleUrl": "https://maps.app.goo.gl/QuUmyigTZDfdfpX29"
   },
@@ -828,8 +873,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "朝鮮火爐",
     "nameKR": "조선화로구이",
-    "lat": 37.5554877,
-    "lng": 126.9160203,
+    "lat": 37.5560490561716,
+    "lng": 126.92062442072883,
     "category": "烤肉",
     "hashtags": [
       "韓牛"
@@ -839,8 +884,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "351-18 Seogyo-dong, Mapo-gu, Seoul",
-    "dongKR": "성산1동",
-    "dongEN": "Seongsan 1(il)-dong",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong",
     "naverUrl": "https://naver.me/5JpU0TnJ",
     "googleUrl": "https://maps.app.goo.gl/xFojyCRadtY5bn947"
   },
@@ -849,8 +894,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "缽山豬皮",
     "nameKR": "발산껍데기",
-    "lat": 37.5594644,
-    "lng": 126.8326509,
+    "lat": 37.56029341643286,
+    "lng": 126.83710523340443,
     "category": "烤肉",
     "hashtags": [
       "豬皮"
@@ -870,8 +915,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "肉夢 弘大本店",
     "nameKR": "맛집 육몽",
-    "lat": 37.5532162,
-    "lng": 126.9159306,
+    "lat": 37.553600263314785,
+    "lng": 126.92059782139611,
     "category": "烤肉",
     "hashtags": [],
     "googleRating": "4.8",
@@ -889,8 +934,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "黨燒肉",
     "nameKR": "꿉당",
-    "lat": 37.5432243,
-    "lng": 127.0527734,
+    "lat": 37.54324343284116,
+    "lng": 127.05756144714864,
     "category": "烤肉",
     "hashtags": [
       "黨燒肉"
@@ -910,8 +955,8 @@ const RESTAURANTS = [
     "district": "seocho",
     "nameCN": "黨燒肉",
     "nameKR": "꿉당",
-    "lat": 37.5166367,
-    "lng": 127.014296,
+    "lat": 37.516848649162775,
+    "lng": 127.01908852436736,
     "category": "烤肉",
     "hashtags": [
       "黨燒肉"
@@ -931,8 +976,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "祖傳三代馬鈴薯排骨湯",
     "nameKR": "소문난 성수 감자탕",
-    "lat": 37.5428241,
-    "lng": 127.0496096,
+    "lat": 37.5430457083058,
+    "lng": 127.05438584606846,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "馬鈴薯排骨湯"
@@ -942,8 +987,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "45 Yeonmujang-gil, Seongdong-gu, Seoul",
-    "dongKR": "성수1가2동",
-    "dongEN": "Seongsu1(il)-ga2(i)-dong",
+    "dongKR": "성수2가3동",
+    "dongEN": "Seongsu 2(i)-ga 3(sam)-dong",
     "naverUrl": "https://naver.me/GgWkGs9y",
     "googleUrl": "https://maps.app.goo.gl/pcuNTtNQERyY4BYRA"
   },
@@ -952,8 +997,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "百年土種蔘鷄湯",
     "nameKR": "백년토종삼계탕",
-    "lat": 37.556453,
-    "lng": 126.9012231,
+    "lat": 37.554471739672366,
+    "lng": 126.92022646413989,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "人蔘雞湯"
@@ -963,8 +1008,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "118 Yanghwa-ro, Mapo-gu, Seoul",
-    "dongKR": "망원2동",
-    "dongEN": "Mangwon 2(i)-dong",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong",
     "naverUrl": "https://naver.me/53lKjV6q",
     "googleUrl": "https://maps.app.goo.gl/HpVQmDBfZC1JJbvL7"
   },
@@ -973,8 +1018,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "光雞",
     "nameKR": "광계",
-    "lat": 37.5613368,
-    "lng": 126.9214709,
+    "lat": 37.56177028796768,
+    "lng": 126.92631117840976,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "人蔘雞湯"
@@ -994,8 +1039,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "崔社長家的雞",
     "nameKR": "최사장네닭",
-    "lat": 37.56033,
-    "lng": 126.9188806,
+    "lat": 37.56072629367486,
+    "lng": 126.9237654935975,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "辣燉雞湯"
@@ -1005,8 +1050,8 @@ const RESTAURANTS = [
     "IGreels": "https://www.instagram.com/reel/DYgYyRYSJyc/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==",
     "featuredDish": "",
     "addressEN": "4-1 Yeonnam-ro, Mapo-gu, Seoul",
-    "dongKR": "성산1동",
-    "dongEN": "Seongsan 1(il)-dong",
+    "dongKR": "연남동",
+    "dongEN": "Yeonnam-dong",
     "naverUrl": "https://naver.me/xWTnmRpq",
     "googleUrl": "https://maps.app.goo.gl/RhGDEncxyc1gjAn7A"
   },
@@ -1015,8 +1060,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "HOISIK",
     "nameKR": "호이식",
-    "lat": 37.5778204,
-    "lng": 126.981547,
+    "lat": 37.578281392104785,
+    "lng": 126.98627126071804,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "一隻雞"
@@ -1026,18 +1071,18 @@ const RESTAURANTS = [
     "IGreels": "https://www.instagram.com/reel/DVayjKqk4kN/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==",
     "featuredDish": "",
     "addressEN": "Seoul, Jongno District, Bukchon-ro 2-gil, 10 1층",
-    "dongKR": "삼청동",
-    "dongEN": "Samcheong-dong",
+    "dongKR": "가회동",
+    "dongEN": "Gahoe-dong",
     "naverUrl": "https://naver.me/5r3E0IpQ",
     "googleUrl": "https://maps.app.goo.gl/6JTsFEwkrRkVEn617"
   },
   {
     "id": "r_52",
     "district": "jongno",
-    "nameCN": "이복희해장 종로점",
+    "nameCN": "李福姬解酒湯",
     "nameKR": "이복희해장",
-    "lat": 37.5690085,
-    "lng": 126.9825382,
+    "lat": 37.56941897451093,
+    "lng": 126.98734439388396,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "解酒湯"
@@ -1057,8 +1102,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "實費屋",
     "nameKR": "실비옥",
-    "lat": 37.5434075,
-    "lng": 127.0534665,
+    "lat": 37.54385251524655,
+    "lng": 127.05827977710037,
     "category": "暖暖ㄉ湯",
     "hashtags": [
       "牛肉海帶鍋"
@@ -1078,8 +1123,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "保承會館",
     "nameKR": "보승회관",
-    "lat": 37.5643663,
-    "lng": 126.9800006,
+    "lat": 37.56469137039903,
+    "lng": 126.98479766189318,
     "category": "湯飯",
     "hashtags": [],
     "googleRating": "3.6",
@@ -1094,11 +1139,11 @@ const RESTAURANTS = [
   },
   {
     "id": "r_55",
-    "district": "jung",
+    "district": "seodaemun",
     "nameCN": "保承會館",
     "nameKR": "보승회관",
-    "lat": 37.5643663,
-    "lng": 126.9800006,
+    "lat": 37.556711016411484,
+    "lng": 126.92883223394712,
     "category": "湯飯",
     "hashtags": [],
     "googleRating": "4.0",
@@ -1106,8 +1151,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "131 Eoulmadang-ro, Mapo-gu, Seoul",
-    "dongKR": "명동",
-    "dongEN": "Myeong-dong",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong",
     "naverUrl": "https://naver.me/5hua5O6V",
     "googleUrl": "https://maps.app.goo.gl/ofUeBpq2YVf4pUdv8"
   },
@@ -1116,8 +1161,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "河東津",
     "nameKR": "하동진",
-    "lat": 37.5657249,
-    "lng": 127.0112462,
+    "lat": 37.566193664499615,
+    "lng": 127.01594020597531,
     "category": "湯飯",
     "hashtags": [
       "白切肉"
@@ -1127,8 +1172,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "112 Heungin-dong, Jung District, Seoul",
-    "dongKR": "광희동",
-    "dongEN": "Gwanghuidong",
+    "dongKR": "신당동",
+    "dongEN": "Sindang-dong",
     "naverUrl": "https://naver.me/5mI0v3oy",
     "googleUrl": "https://maps.app.goo.gl/yQtUb1JLcF2dTm579"
   },
@@ -1137,8 +1182,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "豚骨藥房",
     "nameKR": "돈골약방",
-    "lat": 37.5459108,
-    "lng": 127.0486752,
+    "lat": 37.54545144642206,
+    "lng": 127.05145933281165,
     "category": "湯飯",
     "hashtags": [],
     "googleRating": "4.9",
@@ -1156,8 +1201,8 @@ const RESTAURANTS = [
     "district": "jung",
     "nameCN": "正雅閣",
     "nameKR": "정아각",
-    "lat": 37.6417283,
-    "lng": 127.0199882,
+    "lat": 37.64200573234901,
+    "lng": 127.02476431495127,
     "category": "麵",
     "hashtags": [
       "炸醬麵"
@@ -1177,8 +1222,8 @@ const RESTAURANTS = [
     "district": "mapo",
     "nameCN": "棒槌手工刀削麵",
     "nameKR": "",
-    "lat": 37.5561388,
-    "lng": 126.901498,
+    "lat": 37.55650575159846,
+    "lng": 126.90689462815595,
     "category": "麵",
     "hashtags": [
       "望遠市場",
@@ -1199,8 +1244,8 @@ const RESTAURANTS = [
     "district": "seongdong",
     "nameCN": "熊甲刀削麵",
     "nameKR": "웅칼",
-    "lat": 37.5445983,
-    "lng": 127.0494384,
+    "lat": 37.545067662672174,
+    "lng": 127.05424101856917,
     "category": "麵",
     "hashtags": [
       "刀削麵"
@@ -1210,8 +1255,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "1F Seongdong-gu, Seongsu-dong 2(i)-ga, Achasan-ro, 92",
-    "dongKR": "성수1가2동",
-    "dongEN": "Seongsu1(il)-ga2(i)-dong",
+    "dongKR": "성수2가3동",
+    "dongEN": "Seongsu 2(i)-ga 3(sam)-dong",
     "naverUrl": "https://naver.me/GcKx1wIb",
     "googleUrl": "https://maps.app.goo.gl/f71tYBxru4xTdqqm8"
   },
@@ -1220,8 +1265,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "南浦麵屋",
     "nameKR": "남포면옥",
-    "lat": 37.567237,
-    "lng": 126.9767742,
+    "lat": 37.56763265353615,
+    "lng": 126.98183606824426,
     "category": "麵",
     "hashtags": [
       "冷麵"
@@ -1231,8 +1276,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "24 Eulji-ro 3-gil, Jung District, Seoul",
-    "dongKR": "사직동",
-    "dongEN": "Sajik-dong",
+    "dongKR": "종로1·2·3·4가동",
+    "dongEN": "Jongno1·2·3·4Gadong",
     "naverUrl": "https://naver.me/FeXRk4zh",
     "googleUrl": "https://maps.app.goo.gl/TaynxDh59wBS9TXr9"
   },
@@ -1241,8 +1286,8 @@ const RESTAURANTS = [
     "district": "jongno",
     "nameCN": "乙密臺平壤冷麵",
     "nameKR": "을밀대",
-    "lat": 37.567237,
-    "lng": 126.9767742,
+    "lat": 37.567373065273685,
+    "lng": 126.9800304015735,
     "category": "麵",
     "hashtags": [
       "冷麵"
@@ -1252,18 +1297,18 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "40 B1 Namdaemun-ro 9-gil, Jung District, Seoul",
-    "dongKR": "사직동",
-    "dongEN": "Sajik-dong",
+    "dongKR": "종로1·2·3·4가동",
+    "dongEN": "Jongno1·2·3·4Gadong",
     "naverUrl": "https://naver.me/xrSQd4FI",
     "googleUrl": "https://maps.app.goo.gl/bSNEYm71eNAfw2Qj7"
   },
   {
     "id": "r_63",
-    "district": "seocho",
+    "district": "gangnam",
     "nameCN": "乙密臺平壤冷麵",
     "nameKR": "을밀대",
-    "lat": 37.4953323,
-    "lng": 127.0256089,
+    "lat": 37.49558831128396,
+    "lng": 127.03050931465313,
     "category": "麵",
     "hashtags": [
       "冷麵"
@@ -1273,8 +1318,8 @@ const RESTAURANTS = [
     "IGreels": "",
     "featuredDish": "",
     "addressEN": "46 Teheran-ro 4-gil, Gangnam District, Seoul",
-    "dongKR": "서초4동",
-    "dongEN": "Seocho 4(sa)-dong",
+    "dongKR": "역삼1동",
+    "dongEN": "Yeoksam 1(il)-dong",
     "naverUrl": "https://naver.me/GYC97lmL",
     "googleUrl": "https://maps.app.goo.gl/rPV8ZdhQsdSxpNZv5"
   },
@@ -1283,8 +1328,8 @@ const RESTAURANTS = [
     "district": "gangnam",
     "nameCN": "新沙煎餅",
     "nameKR": "신사전",
-    "lat": 37.5186621,
-    "lng": 127.0201205,
+    "lat": 37.51884931162439,
+    "lng": 127.02304408715368,
     "category": "韓式鹹食",
     "hashtags": [
       "煎餅"
@@ -1298,5 +1343,68 @@ const RESTAURANTS = [
     "dongEN": "Sinsa-dong",
     "naverUrl": "https://naver.me/5D8tuw8q",
     "googleUrl": "https://maps.app.goo.gl/tE678JgnK2fSfhYcA"
+  },
+  {
+    "id": "r_65",
+    "district": "mapo",
+    "nameCN": "Musoe泡菜五花肉",
+    "nameKR": "무쇠김치삼겹",
+    "lat": 37.552857615564534,
+    "lng": 126.92266826736592,
+    "category": "烤肉",
+    "hashtags": [
+      "烤腸"
+    ],
+    "googleRating": "4.6",
+    "googleReviews": "263份",
+    "featuredDish": "",
+    "IGreels": "https://www.instagram.com/reel/DUc-yZ-Ep6W/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==",
+    "addressEN": "20-5 Wausan-ro 21-gil, Seogyo-dong, Mapo-gu, Seoul",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong",
+    "naverUrl": "https://naver.me/5vcHkgA4",
+    "googleUrl": "https://maps.app.goo.gl/u6fon2Hd4DzTUy7A7"
+  },
+  {
+    "id": "r_66",
+    "district": "jung",
+    "nameCN": "Musoe泡菜五花肉",
+    "nameKR": "무쇠김치삼겹",
+    "lat": 37.56196141283083,
+    "lng": 126.98537061349127,
+    "category": "烤肉",
+    "hashtags": [
+      "烤腸"
+    ],
+    "googleRating": "4.8",
+    "googleReviews": "988份",
+    "featuredDish": "",
+    "IGreels": "https://www.instagram.com/reel/DUc-yZ-Ep6W/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==",
+    "addressEN": "Seoul, Jung District, Myeongdong 8ga-gil, 7 2층",
+    "dongKR": "명동",
+    "dongEN": "Myeong-dong",
+    "naverUrl": "https://naver.me/FqWta5qP",
+    "googleUrl": "https://maps.app.goo.gl/uYHUuBScu5SBRJ7Z8"
+  },
+  {
+    "id": "r_67",
+    "district": "seongdong",
+    "nameCN": "朝朝刀削麵",
+    "nameKR": "조조칼국수",
+    "lat": 37.54546414325718,
+    "lng": 127.0570752631429,
+    "category": "麵",
+    "hashtags": [
+      "蕭芝芹說一定要吃到的蛤蜊刀削麵"
+    ],
+    "googleRating": "4.5",
+    "googleReviews": "406份",
+    "featuredDish": "",
+    "IGreels": "",
+    "addressEN": "Seoul, Seongdong-gu, Seongsuil-ro 8-gil, 55 1 층",
+    "dongKR": "성수2가3동",
+    "dongEN": "Seongsu 2(i)-ga 3(sam)-dong",
+    "naverUrl": "https://naver.me/xoH8fSpV",
+    "googleUrl": "https://maps.app.goo.gl/qEovCWp8GQdQgLGE6"
   }
 ];

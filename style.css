@@ -1285,3 +1285,27 @@ body {
   border-color: #C8910E;
 }
 
+/* Home pill category list custom styling */
+.btn-category-list {
+  border-color: var(--seoul-stroke);
+  color: var(--seoul-stroke);
+  background: rgba(122, 157, 104, 0.07);
+}
+.btn-category-list:hover {
+  background: rgba(122, 157, 104, 0.16);
+  border-color: var(--seoul-stroke);
+}
+
+/* Premium single pulse effect for highlight */
+@keyframes highlightPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(243, 198, 63, 0)); }
+  30% { transform: scale(1.8); filter: drop-shadow(0 0 15px rgba(243, 198, 63, 0.9)); }
+  70% { transform: scale(1.8); filter: drop-shadow(0 0 15px rgba(243, 198, 63, 0.9)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(243, 198, 63, 0)); }
+}
+.dot-highlight-pulse {
+  animation: highlightPulse 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
