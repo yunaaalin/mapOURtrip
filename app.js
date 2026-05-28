@@ -510,6 +510,103 @@ function resolveLabelCollisions(svgId, scale) {
       leaderLine.style.strokeWidth = (1.25 / shrinkFactor).toFixed(2);
     }
   });
+
+  if (svgId === 'gu-svg') {
+    const dongLabels = svg.querySelectorAll('.dong-label-group');
+    const placedDongBoxes = [];
+    
+    dongLabels.forEach(g => {
+      const line = g.querySelector('.dong-label-line');
+      const textLabel = g.querySelector('.gu-dong-label');
+      const textCnt = g.querySelector('.gu-dong-cnt');
+      
+      if (!line || !textLabel || !textCnt) return;
+      
+      const dcx = parseFloat(line.getAttribute('x1'));
+      const dcy = parseFloat(line.getAttribute('y1'));
+      const initX = parseFloat(line.getAttribute('x2'));
+      const initY = parseFloat(line.getAttribute('y2'));
+      
+      const dcn = textLabel.textContent;
+      const fs = parseFloat(textLabel.getAttribute('data-fs') || 12);
+      const fontSize = fs / shrinkFactor;
+      
+      const boxW = dcn.length * fontSize * 0.72 + 10;
+      const boxH = fontSize * 2.2;
+      
+      const candidates = [
+        { dx: 0,   dy: 0   },
+        { dx: 0,   dy: -18 },
+        { dx: 0,   dy: 18  },
+        { dx: -30, dy: 0   },
+        { dx: 30,  dy: 0   },
+        { dx: -30, dy: -18 },
+        { dx: 30,  dy: -18 },
+        { dx: -30, dy: 18  },
+        { dx: 30,  dy: 18  },
+        { dx: 0,   dy: -36 },
+        { dx: 0,   dy: 36  },
+        { dx: -50, dy: 0   },
+        { dx: 50,  dy: 0   }
+      ].map(c => ({
+        dx: c.dx / shrinkFactor,
+        dy: c.dy / shrinkFactor
+      }));
+      
+      let chosenDx = 0;
+      let chosenDy = 0;
+      let found = false;
+      
+      for (const c of candidates) {
+        const testX = initX + c.dx;
+        const testY = initY + c.dy;
+        
+        const box = {
+          x1: testX - boxW / 2 - 4,
+          x2: testX + boxW / 2 + 4,
+          y1: testY - boxH / 2 - 2,
+          y2: testY + boxH / 2 + 2
+        };
+        
+        let intersect = false;
+        for (const pb of placedDongBoxes) {
+          if (!(box.x2 < pb.x1 || box.x1 > pb.x2 || box.y2 < pb.y1 || box.y1 > pb.y2)) {
+            intersect = true;
+            break;
+          }
+        }
+        
+        if (!intersect) {
+          chosenDx = c.dx;
+          chosenDy = c.dy;
+          placedDongBoxes.push(box);
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found) {
+        placedDongBoxes.push({
+          x1: initX - boxW / 2 - 4,
+          x2: initX + boxW / 2 + 4,
+          y1: initY - boxH / 2 - 2,
+          y2: initY + boxH / 2 + 2
+        });
+      }
+      
+      const finalX = initX + chosenDx;
+      const finalY = initY + chosenDy;
+      
+      textLabel.setAttribute('x', finalX.toFixed(1));
+      textLabel.setAttribute('y', (finalY - 2).toFixed(1));
+      
+      textCnt.setAttribute('x', finalX.toFixed(1));
+      textCnt.setAttribute('y', (finalY + fontSize - 1).toFixed(1));
+      
+      line.setAttribute('x2', finalX.toFixed(1));
+      line.setAttribute('y2', finalY.toFixed(1));
+    });
+  }
 }
 
 // ============================================================
@@ -896,13 +993,14 @@ function gotoGu(guName) {
       onmouseleave="hideTip()"/>`;
 
     dongLabels += `
-      <line x1="${dcx.toFixed(1)}" y1="${dcy.toFixed(1)}" x2="${labelX.toFixed(1)}" y2="${labelY.toFixed(1)}" 
-            stroke="rgba(160, 134, 100, 0.48)" stroke-width="0.8" stroke-dasharray="2,3" />
-      <text class="gu-dong-label" font-size="${labelSz}" data-fs="${labelSz}"
-            x="${labelX.toFixed(1)}" y="${(labelY - 2).toFixed(1)}">${dcn}</text>
-      <text class="gu-dong-cnt"   font-size="${Math.max(7, labelSz - 3)}" data-fs="${Math.max(7, labelSz - 3)}"
-            x="${labelX.toFixed(1)}" y="${(labelY + labelSz - 1).toFixed(1)}">${cnt} 間</text>
-    `;
+      <g class="dong-label-group" id="dong-label-${dongKR}">
+        <line class="dong-label-line" x1="${dcx.toFixed(1)}" y1="${dcy.toFixed(1)}" x2="${labelX.toFixed(1)}" y2="${labelY.toFixed(1)}" 
+              stroke="rgba(160, 134, 100, 0.48)" stroke-width="0.8" stroke-dasharray="2,3" />
+        <text class="gu-dong-label" font-size="${labelSz}" data-fs="${labelSz}"
+              x="${labelX.toFixed(1)}" y="${(labelY - 2).toFixed(1)}">${dcn}</text>
+        <text class="gu-dong-cnt"   font-size="${Math.max(7, labelSz - 3)}" data-fs="${Math.max(7, labelSz - 3)}"
+              x="${labelX.toFixed(1)}" y="${(labelY + labelSz - 1).toFixed(1)}">${cnt} 間</text>
+      </g>`;
   });
 
   // Render restaurant dots inside this Gu (shows stars for must eat!)
@@ -916,10 +1014,7 @@ function gotoGu(guName) {
       : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="5.5" fill="${col}"/>`;
       
     return `
-      <g class="rest-dot${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}"
-         onclick="openModal('${r.id}')"
-         onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
-         onmouseleave="hideTip()">
+      <g class="rest-dot${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}" style="pointer-events: none;">
         ${shape}
       </g>`;
   }).join('');
