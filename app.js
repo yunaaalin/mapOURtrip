@@ -421,18 +421,18 @@ function resolveLabelCollisions(svgId, scale) {
     const boxW = text.length * charW;
     const boxH = fontSize * 1.3;
     
-    const naturalOffset = -18 / shrinkFactor;
+    const naturalOffset = -28 / shrinkFactor;
     
     const candidates = [
-      -18,
-      -32,
-      22,
+      -28,
       -46,
-      36,
-      -60,
-      50,
-      -74,
-      64
+      26,
+      -64,
+      44,
+      -82,
+      62,
+      -100,
+      80
     ].map(off => off / shrinkFactor);
     
     let chosenOffset = naturalOffset;
@@ -641,10 +641,10 @@ function initParticles() {
     pts = Array.from({ length: 45 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: Math.random() * 1.5 + 0.5,
-      vx: (Math.random() - 0.5) * 0.18,
-      vy: (Math.random() - 0.5) * 0.18,
-      a: Math.random() * 0.22 + 0.05,
+      r: Math.random() * 2.2 + 0.8,
+      vx: (Math.random() - 0.5) * 0.48,
+      vy: (Math.random() - 0.5) * 0.48,
+      a: Math.random() * 0.35 + 0.15,
     }));
   }
 
