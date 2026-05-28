@@ -37,6 +37,12 @@ const DONG_KR_TO_CN = {
   '수유2동':         '水踰洞',
   '서초4동':         '瑞草洞',
   '신사동':          '新沙洞（江南）',
+  '가회동':          '嘉會洞',
+  '등촌2동':         '登村洞',
+  '역삼1동':         '驛三洞',
+  '연희동':          '延禧洞',
+  '한강로동':        '漢江路洞',
+  '황학동':          '黃鶴洞',
 };
 
 const GU_KR_TO_CN = {
@@ -223,11 +229,9 @@ function setupPanZoom(svgId) {
       const parent = l.parentNode;
       const targetDot = parent.querySelector('circle, polygon');
       if (targetDot) {
-        const isStar = targetDot.classList.contains('dot-star');
-        const ry = parseFloat(targetDot.getAttribute('cy') || 0);
-        l.style.fontSize = `${(13.5 / shrinkFactor).toFixed(1)}px`;
-        l.style.strokeWidth = `${(3.5 / shrinkFactor).toFixed(1)}px`;
-        l.setAttribute('y', (ry - (isStar ? 14 : 16) / shrinkFactor).toFixed(1));
+        const baseFs = isGu ? 9.2 : 11.5;
+        l.style.fontSize = `${(baseFs / shrinkFactor).toFixed(1)}px`;
+        l.style.strokeWidth = `${(2.2 / shrinkFactor).toFixed(1)}px`;
       }
     });
 
@@ -235,14 +239,15 @@ function setupPanZoom(svgId) {
       hotelCircle[0].setAttribute('r', (8 / shrinkFactor).toFixed(1));
     }
     if (hotelText.length) {
-      hotelText[0].style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
+      hotelText[0].style.fontSize = `${(11.5 / shrinkFactor).toFixed(1)}px`;
     }
     
     const guHomeLabels = zoomGroup.querySelectorAll('.gu-home-label');
     if (guHomeLabels.length) {
       guHomeLabels.forEach(l => {
-        l.style.fontSize = `${(38 / shrinkFactor).toFixed(1)}px`;
-        l.style.strokeWidth = `${(8 / shrinkFactor).toFixed(1)}px`;
+        const fs = parseFloat(l.getAttribute('data-fs') || 11);
+        l.style.fontSize = `${(fs / shrinkFactor).toFixed(1)}px`;
+        l.style.strokeWidth = `${(2.2 / shrinkFactor).toFixed(1)}px`;
       });
     }
 
@@ -250,10 +255,12 @@ function setupPanZoom(svgId) {
     const guDongCnt    = zoomGroup.querySelectorAll('.gu-dong-cnt');
     if (guDongLabels.length) {
       guDongLabels.forEach(l => {
-        l.style.fontSize = `${(38 / shrinkFactor).toFixed(1)}px`;
+        const fs = parseFloat(l.getAttribute('data-fs') || 13);
+        l.style.fontSize = `${(fs / shrinkFactor).toFixed(1)}px`;
       });
       guDongCnt.forEach(c => {
-        c.style.fontSize = `${(18 / shrinkFactor).toFixed(1)}px`;
+        const fs = parseFloat(c.getAttribute('data-fs') || 10);
+        c.style.fontSize = `${(fs / shrinkFactor).toFixed(1)}px`;
       });
     }
 
@@ -385,70 +392,104 @@ function resolveLabelCollisions(svgId, scale) {
   });
   
   const shrinkFactor = Math.sqrt(scale);
-  const fontSize = 13.5 / shrinkFactor;
+  const isGu = (svgId === 'gu-svg');
+  const baseFs = isGu ? 9.2 : 11.5;
+  const fontSize = baseFs / shrinkFactor;
   
   labelArray.forEach(l => {
     const text = l.textContent;
-    const rx = parseFloat(l.getAttribute('x'));
-    const ry = parseFloat(l.getAttribute('y'));
+    const parent = l.parentNode;
+    const targetDot = parent.querySelector('circle, polygon');
+    const leaderLine = parent.querySelector('.label-line');
     
-    const charW = fontSize * 0.72;
+    if (!targetDot) return;
+    
+    let rx = 0, ry = 0;
+    if (targetDot.tagName === 'circle') {
+      rx = parseFloat(targetDot.getAttribute('cx'));
+      ry = parseFloat(targetDot.getAttribute('cy'));
+    } else if (targetDot.tagName === 'polygon') {
+      const ptsStr = targetDot.getAttribute('points') || '';
+      const coords = ptsStr.split(' ').map(pair => pair.split(',').map(Number));
+      const xs = coords.map(c => c[0]);
+      const ys = coords.map(c => c[1]);
+      rx = (Math.min(...xs) + Math.max(...xs)) / 2;
+      ry = (Math.min(...ys) + Math.max(...ys)) / 2;
+    }
+    
+    const charW = fontSize * 0.70;
     const boxW = text.length * charW;
-    const boxH = fontSize * 1.35;
+    const boxH = fontSize * 1.3;
     
-    const box = {
-      x1: rx - boxW / 2 - 3,
-      x2: rx + boxW / 2 + 3,
-      y1: ry - boxH + 2,
-      y2: ry + 2
-    };
+    const naturalOffset = -12 / shrinkFactor;
     
-    let hasCollision = false;
-    for (const pb of placedBoxes) {
-      const intersect = !(box.x2 < pb.x1 || box.x1 > pb.x2 || box.y2 < pb.y1 || box.y1 > pb.y2);
-      if (intersect) {
-        hasCollision = true;
+    const candidates = [
+      -12,
+      -25,
+      16,
+      -38,
+      29,
+      -51,
+      42,
+      -64,
+      55
+    ].map(off => off / shrinkFactor);
+    
+    let chosenOffset = naturalOffset;
+    let found = false;
+    
+    for (const off of candidates) {
+      const box = {
+        x1: rx - boxW / 2 - 3,
+        x2: rx + boxW / 2 + 3,
+        y1: ry + off - boxH + 2,
+        y2: ry + off + 2
+      };
+      
+      let intersect = false;
+      for (const pb of placedBoxes) {
+        if (!(box.x2 < pb.x1 || box.x1 > pb.x2 || box.y2 < pb.y1 || box.y1 > pb.y2)) {
+          intersect = true;
+          break;
+        }
+      }
+      
+      if (!intersect) {
+        chosenOffset = off;
+        placedBoxes.push(box);
+        found = true;
         break;
       }
     }
     
-    if (hasCollision) {
-      const parent = l.parentNode;
-      const targetDot = parent.querySelector('circle, polygon');
-      if (targetDot) {
-        const dotRy = parseFloat(targetDot.getAttribute('cy') || ry);
-        const isStar = targetDot.classList.contains('dot-star');
-        const newRy = dotRy + (isStar ? 16 : 14) / shrinkFactor;
-        
-        const altBox = {
-          x1: rx - boxW / 2 - 3,
-          x2: rx + boxW / 2 + 3,
-          y1: newRy - boxH + 2,
-          y2: newRy + 2
-        };
-        
-        let altCollision = false;
-        for (const pb of placedBoxes) {
-          const intersect = !(altBox.x2 < pb.x1 || altBox.x1 > pb.x2 || altBox.y2 < pb.y1 || altBox.y1 > pb.y2);
-          if (intersect) {
-            altCollision = true;
-            break;
-          }
-        }
-        
-        if (!altCollision) {
-          l.setAttribute('y', newRy.toFixed(1));
-          l.style.display = '';
-          l.style.opacity = '0.72';
-          placedBoxes.push(altBox);
-        } else {
-          l.style.display = 'none';
-        }
+    if (!found) {
+      chosenOffset = naturalOffset;
+      placedBoxes.push({
+        x1: rx - boxW / 2 - 3,
+        x2: rx + boxW / 2 + 3,
+        y1: ry + naturalOffset - boxH + 2,
+        y2: ry + naturalOffset + 2
+      });
+    }
+    
+    l.setAttribute('x', rx.toFixed(1));
+    l.setAttribute('y', (ry + chosenOffset).toFixed(1));
+    l.style.display = '';
+    
+    if (leaderLine) {
+      const isShifted = Math.abs(chosenOffset - naturalOffset) > 2 / shrinkFactor;
+      if (isShifted) {
+        leaderLine.setAttribute('x1', rx.toFixed(1));
+        leaderLine.setAttribute('y1', ry.toFixed(1));
+        leaderLine.setAttribute('x2', rx.toFixed(1));
+        const lineY2 = ry + chosenOffset + (chosenOffset < 0 ? 3 / shrinkFactor : -10 / shrinkFactor);
+        leaderLine.setAttribute('y2', lineY2.toFixed(1));
+        leaderLine.style.display = 'block';
+        leaderLine.style.stroke = 'rgba(255, 255, 255, 0.45)';
+        leaderLine.style.strokeWidth = (0.8 / shrinkFactor).toFixed(2);
+      } else {
+        leaderLine.style.display = 'none';
       }
-    } else {
-      l.style.display = '';
-      l.style.opacity = '';
-      placedBoxes.push(box);
     }
   });
 }
@@ -686,6 +727,7 @@ function svgSize() {
 // Hover gu → tooltip; Click gu → gotoGu()
 // ============================================================
 function renderHome() {
+  hideTip();
   S.view = 'home';
   S.gu   = null;
   const app    = document.getElementById('app');
@@ -722,7 +764,7 @@ function renderHome() {
       const cn = guCN(guName);
 
       guLabels += `
-        <text class="gu-home-label" font-size="${labelSz}"
+        <text class="gu-home-label" font-size="${labelSz}" data-fs="${labelSz}"
               x="${cx.toFixed(1)}" y="${cy.toFixed(1)}">${cn}</text>
       `;
 
@@ -769,6 +811,7 @@ function renderHome() {
 // Shows gu shape with blue clickable dong blocks
 // ============================================================
 function gotoGu(guName) {
+  hideTip();
   S.view = 'gu';
   S.gu   = guName;
   const app    = document.getElementById('app');
@@ -803,9 +846,9 @@ function gotoGu(guName) {
       onmouseenter="showTip(event,'${safeAttr(dcn)}・${cnt}間 →')"
       onmouseleave="hideTip()"/>`;
     dongLabels += `
-      <text class="gu-dong-label" font-size="${labelSz}"
+      <text class="gu-dong-label" font-size="${labelSz}" data-fs="${labelSz}"
             x="${cx.toFixed(1)}" y="${(cy - 2).toFixed(1)}">${dcn}</text>
-      <text class="gu-dong-cnt"   font-size="${Math.max(7, labelSz - 3)}"
+      <text class="gu-dong-cnt"   font-size="${Math.max(7, labelSz - 3)}" data-fs="${Math.max(7, labelSz - 3)}"
             x="${cx.toFixed(1)}" y="${(cy + labelSz + 2).toFixed(1)}">${cnt} 間</text>
     `;
   });
@@ -825,6 +868,7 @@ function gotoGu(guName) {
          onclick="openModal('${r.id}')"
          onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
          onmouseleave="hideTip()">
+        <line class="label-line" x1="${rx.toFixed(1)}" y1="${ry.toFixed(1)}" x2="${rx.toFixed(1)}" y2="${(ry-10).toFixed(1)}" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" style="display:none;"/>
         ${shape}
         <text class="dot-label" x="${rx.toFixed(1)}" y="${(ry-10).toFixed(1)}" font-size="8">${r.nameCN}</text>
       </g>`;
@@ -882,6 +926,7 @@ function gotoGu(guName) {
 // Back button → gu view (if came from gu); Home button always visible
 // ============================================================
 function gotoDong(dongKR, highlightId = null) {
+  hideTip();
   S.view = 'dong';
   S.dong = dongKR;
 
@@ -906,7 +951,7 @@ function gotoDong(dongKR, highlightId = null) {
   const hotelDotHTML = (hx > 0 && hx < W && hy > 0 && hy < H) ? `
     <g class="hotel-dot">
       <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="8"/>
-      <text x="${hx.toFixed(1)}" y="${(hy-13).toFixed(1)}">飯店 ★</text>
+      <text x="${hx.toFixed(1)}" y="${(hy-13).toFixed(1)}">飯店</text>
     </g>` : '';
 
   const dotHTML = rests.map(r => {
@@ -924,6 +969,7 @@ function gotoDong(dongKR, highlightId = null) {
          onclick="openModal('${r.id}')"
          onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
          onmouseleave="hideTip()">
+        <line class="label-line" x1="${rx.toFixed(1)}" y1="${ry.toFixed(1)}" x2="${rx.toFixed(1)}" y2="${(ry-12).toFixed(1)}" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" style="display:none;"/>
         ${shape}
         <text class="dot-label" x="${rx.toFixed(1)}" y="${(ry-12).toFixed(1)}">${r.nameCN}</text>
       </g>`;
@@ -1143,6 +1189,7 @@ function createRestaurantCardHTML(r, isFeedView = false) {
 }
 
 function openModal(restId) {
+  hideTip();
   const r = RESTAURANTS.find(x => x.id === restId);
   if (!r) return;
   S.fromModal = { restaurantId: restId };
@@ -1169,6 +1216,7 @@ function returnToMapFromFeed(restId, dongKR) {
 
 // ── 「我必須吃到！」清單頁面 ──
 function renderMustEatListView() {
+  hideTip();
   S.view = 'musteatlist';
   S.openDong = null;
   S.gu = null;
@@ -1260,6 +1308,7 @@ function checkAndImportSharedList() {
 
 // ── 「分類清單」頁面 ──
 function renderCategoryListView() {
+  hideTip();
   S.view = 'categorylist';
   S.openDong = null;
   S.gu = null;
@@ -1326,6 +1375,7 @@ function openTagList(tag) {
 // VIEW 4 — LIST VIEW (with optional category / tag filter)
 // ============================================================
 function renderDongListView(filterCat = null, filterTag = null) {
+  hideTip();
   S.view     = 'donglist';
   S.openDong = null;
   S.gu       = null;   // reset gu so back-from-dong goes to home
@@ -1421,7 +1471,7 @@ function toggleDongSection(dongKR) {
 // Init
 // ============================================================
 async function init() {
-  // initParticles(); // 暫停星芒
+  initParticles();
   loadMustEat();
   await loadGeo();
   checkAndImportSharedList();
