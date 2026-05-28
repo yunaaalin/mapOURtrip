@@ -176,8 +176,15 @@ function setupPanZoom(svgId) {
   let startX = 0;
   let startY = 0;
 
+  const isGu = (svgId === 'gu-svg');
+  const slider = document.getElementById(isGu ? 'gu-zoom-range' : 'dist-zoom-range');
+  const btnIn  = document.getElementById(isGu ? 'gu-zoom-in' : 'dist-zoom-in');
+  const btnOut = document.getElementById(isGu ? 'gu-zoom-out' : 'dist-zoom-out');
+
   function updateTransform() {
     zoomGroup.setAttribute('transform', `translate(${tx}, ${ty}) scale(${scale})`);
+    
+    if (slider) slider.value = scale.toFixed(2);
     
     const dotCircles = zoomGroup.querySelectorAll('.dot-circle');
     const dotStars   = zoomGroup.querySelectorAll('.dot-star');
@@ -224,11 +231,12 @@ function setupPanZoom(svgId) {
         l.style.fontSize = `${(12 / shrinkFactor).toFixed(1)}px`;
       });
       guDongCnt.forEach(c => {
-        l.style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
+        c.style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
       });
     }
   }
 
+  // Mouse wheel zoom
   svg.addEventListener('wheel', e => {
     e.preventDefault();
     const rect = svg.getBoundingClientRect();
@@ -251,6 +259,45 @@ function setupPanZoom(svgId) {
     updateTransform();
   }, { passive: false });
 
+  // Slider zoom
+  if (slider) {
+    slider.addEventListener('input', e => {
+      const targetScale = parseFloat(e.target.value);
+      const rect = svg.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      
+      const svgCx = (cx - tx) / scale;
+      const svgCy = (cy - ty) / scale;
+      
+      scale = targetScale;
+      tx = cx - svgCx * scale;
+      ty = cy - svgCy * scale;
+      
+      updateTransform();
+    });
+  }
+
+  // Click buttons zoom
+  function triggerZoom(factor) {
+    const rect = svg.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    
+    const svgCx = (cx - tx) / scale;
+    const svgCy = (cy - ty) / scale;
+    
+    scale = Math.min(Math.max(scale * factor, 0.8), 8);
+    tx = cx - svgCx * scale;
+    ty = cy - svgCy * scale;
+    
+    updateTransform();
+  }
+
+  if (btnIn) btnIn.addEventListener('click', () => triggerZoom(1.3));
+  if (btnOut) btnOut.addEventListener('click', () => triggerZoom(0.75));
+
+  // Panning (Mouse)
   svg.addEventListener('mousedown', e => {
     isPanning = true;
     startX = e.clientX - tx;
@@ -270,14 +317,53 @@ function setupPanZoom(svgId) {
     isPanning = false;
     svg.style.cursor = 'grab';
   });
+
+  // Touch panning support for mobile screens
+  let touchStartX = 0;
+  let touchStartY = 0;
+  
+  svg.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      isPanning = true;
+      touchStartX = e.touches[0].clientX - tx;
+      touchStartY = e.touches[0].clientY - ty;
+    }
+  }, { passive: true });
+
+  svg.addEventListener('touchmove', e => {
+    if (!isPanning || e.touches.length !== 1) return;
+    tx = e.touches[0].clientX - touchStartX;
+    ty = e.touches[0].clientY - touchStartY;
+    updateTransform();
+  }, { passive: true });
+
+  svg.addEventListener('touchend', () => {
+    isPanning = false;
+  }, { passive: true });
   
   svg.style.cursor = 'grab';
   svg.style.userSelect = 'none';
 }
 
 // ============================================================
-// Projection Utilities
+// Projection & Aspect Ratio Utilities
 // ============================================================
+function getCorrectedSize(bounds, maxWidth, maxHeight, pad = 32) {
+  const boundsW = bounds.maxLng - bounds.minLng;
+  const boundsH = bounds.maxLat - bounds.minLat;
+  const geoAspect = boundsW / boundsH;
+  
+  let targetW = maxWidth;
+  let targetH = targetW / geoAspect;
+  
+  if (targetH > maxHeight) {
+    targetH = maxHeight;
+    targetW = targetH * geoAspect;
+  }
+  
+  return [targetW, targetH];
+}
+
 function project(lng, lat, bounds, W, H, pad = 32) {
   const x = ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * (W - pad*2) + pad;
   const y = ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * (H - pad*2) + pad;
@@ -459,7 +545,8 @@ function renderHome() {
   S.view = 'home';
   S.gu   = null;
   const app    = document.getElementById('app');
-  const [W, H] = svgSize();
+  const [maxW, maxH] = [Math.min(window.innerWidth * 0.86, 720), Math.min(window.innerHeight * 0.70, 520)];
+  const [W, H] = getCorrectedSize(SEOUL_BOUNDS, maxW, maxH, 30);
 
   let seoulBgPaths   = '';
   let dongHighlights = '';
@@ -540,8 +627,9 @@ function gotoGu(guName) {
   const dongs = S.guToDongs[guName] || [];
 
   const bounds = padBounds(getFeatureBounds(guFeat), 0.16);
-  const [W, H] = [Math.min(window.innerWidth * 0.9, 820), Math.min(window.innerHeight * 0.80, 660)];
+  const [maxW, maxH] = [Math.min(window.innerWidth * 0.9, 820), Math.min(window.innerHeight * 0.70, 560)];
   const pad    = 46;
+  const [W, H] = getCorrectedSize(bounds, maxW, maxH, pad);
 
   const guPath  = geomToD(guFeat.geometry, bounds, W, H, pad);
   const labelSz = Math.max(10, Math.min(16, Math.round(5800 / W)));
@@ -599,13 +687,20 @@ function gotoGu(guName) {
           <div class="dn-sub">${guName} &nbsp;·&nbsp; ${dongs.length} 個地區</div>
         </div>
       </div>
-      <div class="map-wrap">
+      <div class="map-wrap" style="position: relative;">
         <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="gu-svg">
           <path class="gu-bg-shape" d="${guPath}"/>
           <g class="gu-dong-layer">${dongPaths}</g>
           <g class="gu-label-layer">${dongLabels}</g>
           <g id="gu-dots-layer">${guDotsHTML}</g>
         </svg>
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="gu-zoom-in">＋</button>
+          <div class="zoom-slider-wrap">
+            <input type="range" class="zoom-slider" id="gu-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
+          </div>
+          <button class="zoom-btn" id="gu-zoom-out">－</button>
+        </div>
       </div>
       <div class="gu-hint">
         點藍色區塊，就能看到那裡有哪些餐廳 👆
@@ -630,8 +725,9 @@ function gotoDong(dongKR, highlightId = null) {
 
   const cn     = dongCN(dongKR);
   const bounds = padBounds(getFeatureBounds(feat), 0.38);
-  const [W, H] = [Math.min(window.innerWidth * 0.9, 820), Math.min(window.innerHeight * 0.84, 680)];
+  const [maxW, maxH] = [Math.min(window.innerWidth * 0.9, 820), Math.min(window.innerHeight * 0.70, 560)];
   const pad    = 38;
+  const [W, H] = getCorrectedSize(bounds, maxW, maxH, pad);
 
   const rests = RESTAURANTS
     .filter(r => r.dongKR === dongKR)
@@ -680,15 +776,22 @@ function gotoDong(dongKR, highlightId = null) {
           <div class="dn-sub">${feat.properties.name_eng} &nbsp;·&nbsp; ${rests.length} 間餐廳</div>
         </div>
       </div>
-      <div class="map-wrap">
+      <div class="map-wrap" style="position: relative;">
         <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="dist-svg">
           <path class="dist-bg-shape" d="${distPath}"/>
           ${hotelDotHTML}
           <g id="dots-layer">${dotHTML}</g>
         </svg>
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="dist-zoom-in">＋</button>
+          <div class="zoom-slider-wrap">
+            <input type="range" class="zoom-slider" id="dist-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
+          </div>
+          <button class="zoom-btn" id="dist-zoom-out">－</button>
+        </div>
       </div>
       <div class="dong-footer">
-        <button class="btn-home-footer" onclick="renderHome()">🏠 回首頁</button>
+        <button class="btn-home-footer" onclick="renderHome()">回首頁</button>
       </div>
     </div>
   `;

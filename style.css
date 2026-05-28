@@ -270,19 +270,28 @@ body {
    BUTTONS
    ============================================================ */
 .btn-back {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 100px;
   border: 1.5px solid rgba(160,134,100,0.5);
   background: rgba(245,239,226,0.82);
   color: var(--text-secondary);
-  font-size: 17px;
+  font-size: 13.5px;
+  font-weight: 500;
   display: flex; align-items: center; justify-content: center;
+  gap: 6px;
   cursor: pointer;
   backdrop-filter: blur(6px);
-  transition: transform 0.18s, border-color 0.18s;
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform 0.18s, border-color 0.18s, background 0.18s;
   flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
-.btn-back:hover { transform: scale(1.1); border-color: var(--text-muted); }
+.btn-back:hover {
+  transform: translateY(-1px);
+  border-color: var(--text-muted);
+  background: rgba(245,239,226,0.95);
+}
 
 .btn-pill {
   display: inline-flex;
@@ -1307,5 +1316,77 @@ body {
   animation: highlightPulse 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   transform-origin: center;
   transform-box: fill-box;
+}
+
+/* ============================================================
+   ZOOM CONTROLS (VERTICAL RANGE SLIDER)
+   ============================================================ */
+.zoom-controls {
+  position: absolute;
+  right: 18px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: rgba(245, 239, 226, 0.86);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(160, 134, 100, 0.35);
+  padding: 12px 7px;
+  border-radius: 40px;
+  z-index: 100;
+  box-shadow: 0 8px 30px rgba(58, 46, 32, 0.08);
+}
+.zoom-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(160, 134, 100, 0.12);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+.zoom-btn:hover {
+  background: rgba(160, 134, 100, 0.24);
+  transform: scale(1.08);
+}
+.zoom-slider-wrap {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zoom-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 5px;
+  height: 70px;
+  background: rgba(160, 134, 100, 0.18);
+  border-radius: 3px;
+  outline: none;
+  writing-mode: vertical-lr; /* Modern browsers vertical rendering */
+  direction: rtl;
+}
+.zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  cursor: pointer;
+  border: 1.5px solid var(--bg);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  transition: transform 0.1s;
+}
+.zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
 }
 
