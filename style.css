@@ -155,10 +155,12 @@ body {
 .map-wrap svg {
   max-width: 88vw;
   max-height: 70vh;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
+  background: rgba(245, 239, 226, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(58, 46, 32, 0.05);
+  padding: 8px;
+  background-clip: padding-box;
 }
 
 /* ---- Seoul & district paths ---- */

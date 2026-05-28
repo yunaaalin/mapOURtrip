@@ -673,11 +673,26 @@ function initParticles() {
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const cards = Array.from(document.querySelectorAll('.map-wrap svg, .cat-view, .must-eat-view, .modal-box'));
+    const rects = cards.map(c => c.getBoundingClientRect());
+
     pts.forEach(p => {
       p.x += p.vx; p.y += p.vy;
       if (p.x < 0) p.x = canvas.width;  if (p.x > canvas.width)  p.x = 0;
       if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
-      drawSparkle(p.x, p.y, p.r, p.a);
+      
+      let inside = false;
+      for (const r of rects) {
+        if (p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom) {
+          inside = true;
+          break;
+        }
+      }
+      
+      if (!inside) {
+        drawSparkle(p.x, p.y, p.r, p.a);
+      }
     });
     requestAnimationFrame(draw);
   }
