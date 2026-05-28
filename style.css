@@ -154,7 +154,13 @@ body {
 }
 .map-wrap svg {
   max-width: 88vw;
-  max-height: 82vh;
+  max-height: 70vh;
+  background: rgba(245, 239, 226, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(58, 46, 32, 0.05);
+  padding: 8px;
+  background-clip: padding-box;
 }
 
 /* ---- Seoul & district paths ---- */
@@ -232,15 +238,15 @@ body {
 }
 .rest-dot .dot-label {
   font-family: 'Outfit', sans-serif;
-  font-size: 9px;
+  font-size: 13.5px;
   fill: var(--text-primary);
   text-anchor: middle;
   pointer-events: none;
   opacity: 0.72;
   transition: opacity 0.15s;
   paint-order: stroke fill;
-  stroke: rgba(237,228,211,0.85);
-  stroke-width: 3px;
+  stroke: rgba(237,228,211,0.92);
+  stroke-width: 4px;
   stroke-linejoin: round;
 }
 .rest-dot:hover .dot-label { opacity: 1; }
@@ -1388,5 +1394,103 @@ body {
 }
 .zoom-slider::-webkit-slider-thumb:hover {
   transform: scale(1.25);
+}
+
+/* ============================================================
+   TRANSITION FIXES (PREVENT STAR BLINK TRANSITION CONFLCTS)
+   ============================================================ */
+.rest-dot.dot-highlight-pulse polygon.dot-star,
+.rest-dot.dot-highlight-pulse circle.dot-circle,
+.dot-highlight-pulse {
+  transition: none !important;
+}
+
+/* ============================================================
+   GU DETAILED MAP DONG LEGEND NAV (BOTTOM CARD GRID)
+   ============================================================ */
+.gu-dongs-nav {
+  width: 90%;
+  max-width: 720px;
+  margin: 18px auto 8px;
+  padding: 15px 22px;
+  background: rgba(245, 239, 226, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(160, 134, 100, 0.22);
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(58, 46, 32, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gu-dongs-nav-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.gu-dongs-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.btn-dong-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1.5px solid var(--dist-stroke);
+  background: rgba(184, 208, 220, 0.12);
+  color: var(--dist-stroke);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.btn-dong-nav:hover {
+  background: rgba(184, 208, 220, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(106, 151, 171, 0.12);
+}
+.btn-dong-nav-count {
+  font-size: 9.5px;
+  font-weight: 600;
+  opacity: 0.85;
+  background: rgba(106, 151, 171, 0.16);
+  padding: 1px 6px;
+  border-radius: 100px;
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE TWEAKS (VERTICAL HOME FOOTER BUTTONS)
+   ============================================================ */
+@media (max-width: 600px) {
+  .home-footer {
+    flex-direction: column;
+    width: 82%;
+    align-items: center;
+    bottom: 22px;
+    gap: 8px;
+  }
+  .home-footer .btn-pill {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 22px;
+    font-size: 13.5px;
+  }
+  .zoom-controls {
+    right: 10px;
+    bottom: 18px;
+    padding: 8px 5px;
+  }
+  .zoom-slider-wrap {
+    height: 60px;
+  }
+  .zoom-slider {
+    height: 50px;
+  }
 }
 

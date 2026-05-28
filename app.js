@@ -176,10 +176,24 @@ function setupPanZoom(svgId) {
   let startX = 0;
   let startY = 0;
 
+  const isHome = (svgId === 'home-svg');
   const isGu = (svgId === 'gu-svg');
-  const slider = document.getElementById(isGu ? 'gu-zoom-range' : 'dist-zoom-range');
-  const btnIn  = document.getElementById(isGu ? 'gu-zoom-in' : 'dist-zoom-in');
-  const btnOut = document.getElementById(isGu ? 'gu-zoom-out' : 'dist-zoom-out');
+  
+  let sliderId = 'dist-zoom-range';
+  if (isHome) sliderId = 'home-zoom-range';
+  else if (isGu) sliderId = 'gu-zoom-range';
+
+  let btnInId = 'dist-zoom-in';
+  if (isHome) btnInId = 'home-zoom-in';
+  else if (isGu) btnInId = 'gu-zoom-in';
+
+  let btnOutId = 'dist-zoom-out';
+  if (isHome) btnOutId = 'home-zoom-out';
+  else if (isGu) btnOutId = 'gu-zoom-out';
+
+  const slider = document.getElementById(sliderId);
+  const btnIn  = document.getElementById(btnInId);
+  const btnOut = document.getElementById(btnOutId);
 
   function updateTransform() {
     zoomGroup.setAttribute('transform', `translate(${tx}, ${ty}) scale(${scale})`);
@@ -211,9 +225,9 @@ function setupPanZoom(svgId) {
       if (targetDot) {
         const isStar = targetDot.classList.contains('dot-star');
         const ry = parseFloat(targetDot.getAttribute('cy') || 0);
-        l.style.fontSize = `${(8 / shrinkFactor).toFixed(1)}px`;
-        l.style.strokeWidth = `${(2.5 / shrinkFactor).toFixed(1)}px`;
-        l.setAttribute('y', (ry - (isStar ? 10 : 12) / shrinkFactor).toFixed(1));
+        l.style.fontSize = `${(13.5 / shrinkFactor).toFixed(1)}px`;
+        l.style.strokeWidth = `${(3.5 / shrinkFactor).toFixed(1)}px`;
+        l.setAttribute('y', (ry - (isStar ? 14 : 16) / shrinkFactor).toFixed(1));
       }
     });
 
@@ -224,16 +238,26 @@ function setupPanZoom(svgId) {
       hotelText[0].style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
     }
     
+    const guHomeLabels = zoomGroup.querySelectorAll('.gu-home-label');
+    if (guHomeLabels.length) {
+      guHomeLabels.forEach(l => {
+        l.style.fontSize = `${(38 / shrinkFactor).toFixed(1)}px`;
+        l.style.strokeWidth = `${(8 / shrinkFactor).toFixed(1)}px`;
+      });
+    }
+
     const guDongLabels = zoomGroup.querySelectorAll('.gu-dong-label');
     const guDongCnt    = zoomGroup.querySelectorAll('.gu-dong-cnt');
     if (guDongLabels.length) {
       guDongLabels.forEach(l => {
-        l.style.fontSize = `${(12 / shrinkFactor).toFixed(1)}px`;
+        l.style.fontSize = `${(38 / shrinkFactor).toFixed(1)}px`;
       });
       guDongCnt.forEach(c => {
-        c.style.fontSize = `${(9 / shrinkFactor).toFixed(1)}px`;
+        c.style.fontSize = `${(18 / shrinkFactor).toFixed(1)}px`;
       });
     }
+
+    resolveLabelCollisions(svgId, scale);
   }
 
   // Mouse wheel zoom
@@ -343,6 +367,90 @@ function setupPanZoom(svgId) {
   
   svg.style.cursor = 'grab';
   svg.style.userSelect = 'none';
+}
+
+// ── Multi-label Collision Avoidance ──
+function resolveLabelCollisions(svgId, scale) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  
+  const labels = svg.querySelectorAll('.rest-dot .dot-label');
+  const placedBoxes = [];
+  
+  const labelArray = Array.from(labels);
+  labelArray.sort((a, b) => {
+    const aIsMust = a.parentNode.classList.contains('dot-is-must');
+    const bIsMust = b.parentNode.classList.contains('dot-is-must');
+    return bIsMust - aIsMust;
+  });
+  
+  const shrinkFactor = Math.sqrt(scale);
+  const fontSize = 13.5 / shrinkFactor;
+  
+  labelArray.forEach(l => {
+    const text = l.textContent;
+    const rx = parseFloat(l.getAttribute('x'));
+    const ry = parseFloat(l.getAttribute('y'));
+    
+    const charW = fontSize * 0.72;
+    const boxW = text.length * charW;
+    const boxH = fontSize * 1.35;
+    
+    const box = {
+      x1: rx - boxW / 2 - 3,
+      x2: rx + boxW / 2 + 3,
+      y1: ry - boxH + 2,
+      y2: ry + 2
+    };
+    
+    let hasCollision = false;
+    for (const pb of placedBoxes) {
+      const intersect = !(box.x2 < pb.x1 || box.x1 > pb.x2 || box.y2 < pb.y1 || box.y1 > pb.y2);
+      if (intersect) {
+        hasCollision = true;
+        break;
+      }
+    }
+    
+    if (hasCollision) {
+      const parent = l.parentNode;
+      const targetDot = parent.querySelector('circle, polygon');
+      if (targetDot) {
+        const dotRy = parseFloat(targetDot.getAttribute('cy') || ry);
+        const isStar = targetDot.classList.contains('dot-star');
+        const newRy = dotRy + (isStar ? 16 : 14) / shrinkFactor;
+        
+        const altBox = {
+          x1: rx - boxW / 2 - 3,
+          x2: rx + boxW / 2 + 3,
+          y1: newRy - boxH + 2,
+          y2: newRy + 2
+        };
+        
+        let altCollision = false;
+        for (const pb of placedBoxes) {
+          const intersect = !(altBox.x2 < pb.x1 || altBox.x1 > pb.x2 || altBox.y2 < pb.y1 || altBox.y1 > pb.y2);
+          if (intersect) {
+            altCollision = true;
+            break;
+          }
+        }
+        
+        if (!altCollision) {
+          l.setAttribute('y', newRy.toFixed(1));
+          l.style.display = '';
+          l.style.opacity = '0.72';
+          placedBoxes.push(altBox);
+        } else {
+          l.style.display = 'none';
+        }
+      }
+    } else {
+      l.style.display = '';
+      l.style.opacity = '';
+      placedBoxes.push(box);
+    }
+  });
 }
 
 // ============================================================
@@ -491,25 +599,48 @@ function initParticles() {
   const ctx    = canvas.getContext('2d');
   let pts      = [];
   function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  
   function spawn() {
-    pts = Array.from({ length: 50 }, () => ({
-      x: Math.random() * canvas.width,  y: Math.random() * canvas.height,
-      r: Math.random() * 1.4 + 0.4,
-      vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
-      a: Math.random() * 0.28 + 0.07,
+    pts = Array.from({ length: 45 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: (Math.random() - 0.5) * 0.18,
+      a: Math.random() * 0.22 + 0.05,
     }));
   }
+
+  // Draw soft-edged 4-pointed sparkle
+  function drawSparkle(cx, cy, r, alpha) {
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.moveTo(cx, cy - r * 2.8);
+    ctx.quadraticCurveTo(cx, cy, cx + r * 2.8, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy + r * 2.8);
+    ctx.quadraticCurveTo(cx, cy, cx - r * 2.8, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy - r * 2.8);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Soft glow center
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.8, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 1.4})`;
+    ctx.fill();
+  }
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     pts.forEach(p => {
       p.x += p.vx; p.y += p.vy;
       if (p.x < 0) p.x = canvas.width;  if (p.x > canvas.width)  p.x = 0;
       if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(160,134,100,${p.a})`; ctx.fill();
+      drawSparkle(p.x, p.y, p.r, p.a);
     });
     requestAnimationFrame(draw);
   }
+  
   resize(); spawn(); draw();
   window.addEventListener('resize', () => { resize(); spawn(); });
 }
@@ -595,13 +726,20 @@ function renderHome() {
         <h1>首爾豬什麼🐽🍴</h1>
         <p>點選有橙色標記的地區，進入行政區查看餐廳</p>
       </div>
-      <div class="map-wrap">
+      <div class="map-wrap" style="position: relative;">
         <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="home-svg">
           <g class="seoul-bg">${seoulBgPaths}</g>
           <g class="home-dong-layer">${dongHighlights}</g>
           <g class="home-gu-label-layer">${guLabels}</g>
           <g class="home-gu-zones">${guZones}</g>
         </svg>
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="home-zoom-in">＋</button>
+          <div class="zoom-slider-wrap">
+            <input type="range" class="zoom-slider" id="home-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
+          </div>
+          <button class="zoom-btn" id="home-zoom-out">－</button>
+        </div>
       </div>
       <div class="home-footer">
         <button class="btn-pill" onclick="renderDongListView()">⊞ 區域清單</button>
@@ -610,6 +748,8 @@ function renderHome() {
       </div>
     </div>
   `;
+  setupPanZoom('home-svg');
+}
 }
 
 // ============================================================
@@ -691,7 +831,6 @@ function gotoGu(guName) {
         <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="gu-svg">
           <path class="gu-bg-shape" d="${guPath}"/>
           <g class="gu-dong-layer">${dongPaths}</g>
-          <g class="gu-label-layer">${dongLabels}</g>
           <g id="gu-dots-layer">${guDotsHTML}</g>
         </svg>
         <div class="zoom-controls">
@@ -702,6 +841,21 @@ function gotoGu(guName) {
           <button class="zoom-btn" id="gu-zoom-out">－</button>
         </div>
       </div>
+      
+      <div class="gu-dongs-nav">
+        <div class="gu-dongs-nav-title">地區快速瀏覽：</div>
+        <div class="gu-dongs-nav-list">
+          ${dongs.map(dongKR => {
+            const cnt = RESTAURANTS.filter(r => r.dongKR === dongKR).length;
+            return `
+              <button class="btn-dong-nav" onclick="gotoDong('${safeAttr(dongKR)}')">
+                <span class="btn-dong-nav-name">${dongCN(dongKR)}</span>
+                <span class="btn-dong-nav-count">${cnt}間</span>
+              </button>`;
+          }).join('')}
+        </div>
+      </div>
+
       <div class="gu-hint">
         點藍色區塊，就能看到那裡有哪些餐廳 👆
       </div>
