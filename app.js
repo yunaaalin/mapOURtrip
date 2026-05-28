@@ -763,7 +763,6 @@ function renderHome() {
   `;
   setupPanZoom('home-svg');
 }
-}
 
 // ============================================================
 // VIEW 2 — GU DETAIL
