@@ -421,29 +421,46 @@ function resolveLabelCollisions(svgId, scale) {
     const boxW = text.length * charW;
     const boxH = fontSize * 1.3;
     
-    const naturalOffset = -28 / shrinkFactor;
+    const naturalDx = 0;
+    const naturalDy = -28 / shrinkFactor;
     
     const candidates = [
-      -28,
-      -46,
-      26,
-      -64,
-      44,
-      -82,
-      62,
-      -100,
-      80
-    ].map(off => off / shrinkFactor);
+      { dx: 0,   dy: -28 },
+      { dx: 0,   dy: 26  },
+      { dx: -45, dy: -28 },
+      { dx: 45,  dy: -28 },
+      { dx: -45, dy: 26  },
+      { dx: 45,  dy: 26  },
+      { dx: 0,   dy: -52 },
+      { dx: 0,   dy: 50  },
+      { dx: -65, dy: -52 },
+      { dx: 65,  dy: -52 },
+      { dx: -65, dy: 50  },
+      { dx: 65,  dy: 50  },
+      { dx: 0,   dy: -76 },
+      { dx: 0,   dy: 74  },
+      { dx: -85, dy: -76 },
+      { dx: 85,  dy: -76 },
+      { dx: -85, dy: 74  },
+      { dx: 85,  dy: 74  }
+    ].map(c => ({
+      dx: c.dx / shrinkFactor,
+      dy: c.dy / shrinkFactor
+    }));
     
-    let chosenOffset = naturalOffset;
+    let chosenDx = naturalDx;
+    let chosenDy = naturalDy;
     let found = false;
     
-    for (const off of candidates) {
+    for (const c of candidates) {
+      const labelX = rx + c.dx;
+      const labelY = ry + c.dy;
+      
       const box = {
-        x1: rx - boxW / 2 - 3,
-        x2: rx + boxW / 2 + 3,
-        y1: ry + off - boxH + 2,
-        y2: ry + off + 2
+        x1: labelX - boxW / 2 - 3,
+        x2: labelX + boxW / 2 + 3,
+        y1: labelY - boxH + 2,
+        y2: labelY + 2
       };
       
       let intersect = false;
@@ -455,7 +472,8 @@ function resolveLabelCollisions(svgId, scale) {
       }
       
       if (!intersect) {
-        chosenOffset = off;
+        chosenDx = c.dx;
+        chosenDy = c.dy;
         placedBoxes.push(box);
         found = true;
         break;
@@ -463,25 +481,28 @@ function resolveLabelCollisions(svgId, scale) {
     }
     
     if (!found) {
-      chosenOffset = naturalOffset;
+      chosenDx = naturalDx;
+      chosenDy = naturalDy;
       placedBoxes.push({
-        x1: rx - boxW / 2 - 3,
-        x2: rx + boxW / 2 + 3,
-        y1: ry + naturalOffset - boxH + 2,
-        y2: ry + naturalOffset + 2
+        x1: rx + naturalDx - boxW / 2 - 3,
+        x2: rx + naturalDx + boxW / 2 + 3,
+        y1: ry + naturalDy - boxH + 2,
+        y2: ry + naturalDy + 2
       });
     }
     
-    l.setAttribute('x', rx.toFixed(1));
-    l.setAttribute('y', (ry + chosenOffset).toFixed(1));
+    const finalX = rx + chosenDx;
+    const finalY = ry + chosenDy;
+    
+    l.setAttribute('x', finalX.toFixed(1));
+    l.setAttribute('y', finalY.toFixed(1));
     l.style.display = '';
     
     if (leaderLine) {
-      // Always show thicker leader line for high legibility
       leaderLine.setAttribute('x1', rx.toFixed(1));
       leaderLine.setAttribute('y1', ry.toFixed(1));
-      leaderLine.setAttribute('x2', rx.toFixed(1));
-      const lineY2 = ry + chosenOffset + (chosenOffset < 0 ? 3 / shrinkFactor : -10 / shrinkFactor);
+      leaderLine.setAttribute('x2', finalX.toFixed(1));
+      const lineY2 = finalY + (chosenDy < 0 ? 3 / shrinkFactor : -10 / shrinkFactor);
       leaderLine.setAttribute('y2', lineY2.toFixed(1));
       leaderLine.style.display = 'block';
       leaderLine.style.stroke = 'rgba(255, 255, 255, 0.65)';
