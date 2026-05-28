@@ -374,6 +374,7 @@ function setupPanZoom(svgId) {
   
   svg.style.cursor = 'grab';
   svg.style.userSelect = 'none';
+  updateTransform();
 }
 
 // ── Multi-label Collision Avoidance ──
@@ -864,24 +865,43 @@ function gotoGu(guName) {
   let dongPaths  = '';
   let dongLabels = '';
 
+  const [guClng, guClat] = centroid(guFeat);
+  const [guCx, guCy]     = project(guClng, guClat, bounds, W, H, pad);
+
   dongs.forEach(dongKR => {
     const feat = dongFeature(dongKR);
     if (!feat) return;
     const d = geomToD(feat.geometry, bounds, W, H, pad);
     const [clng, clat] = centroid(feat);
-    const [cx, cy]     = project(clng, clat, bounds, W, H, pad);
+    const [dcx, dcy]     = project(clng, clat, bounds, W, H, pad);
     const dcn = dongCN(dongKR);
     const cnt = RESTAURANTS.filter(r => r.dongKR === dongKR).length;
+
+    const dx = dcx - guCx;
+    const dy = dcy - guCy;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const ux = len > 0 ? dx / len : 0;
+    const uy = len > 0 ? dy / len : 0;
+
+    const pushDist = 58;
+    let labelX = dcx + ux * pushDist;
+    let labelY = dcy + uy * pushDist;
+
+    labelX = Math.max(30, Math.min(W - 30, labelX));
+    labelY = Math.max(20, Math.min(H - 20, labelY));
 
     dongPaths  += `<path class="gu-dong-block" d="${d}"
       onclick="gotoDong('${safeAttr(dongKR)}')"
       onmouseenter="showTip(event,'${safeAttr(dcn)}・${cnt}間 →')"
       onmouseleave="hideTip()"/>`;
+
     dongLabels += `
+      <line x1="${dcx.toFixed(1)}" y1="${dcy.toFixed(1)}" x2="${labelX.toFixed(1)}" y2="${labelY.toFixed(1)}" 
+            stroke="rgba(160, 134, 100, 0.48)" stroke-width="0.8" stroke-dasharray="2,3" />
       <text class="gu-dong-label" font-size="${labelSz}" data-fs="${labelSz}"
-            x="${cx.toFixed(1)}" y="${(cy - 2).toFixed(1)}">${dcn}</text>
+            x="${labelX.toFixed(1)}" y="${(labelY - 2).toFixed(1)}">${dcn}</text>
       <text class="gu-dong-cnt"   font-size="${Math.max(7, labelSz - 3)}" data-fs="${Math.max(7, labelSz - 3)}"
-            x="${cx.toFixed(1)}" y="${(cy + labelSz + 2).toFixed(1)}">${cnt} 間</text>
+            x="${labelX.toFixed(1)}" y="${(labelY + labelSz - 1).toFixed(1)}">${cnt} 間</text>
     `;
   });
 
@@ -917,6 +937,7 @@ function gotoGu(guName) {
         <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="gu-svg">
           <path class="gu-bg-shape" d="${guPath}"/>
           <g class="gu-dong-layer">${dongPaths}</g>
+          <g class="gu-dong-label-layer">${dongLabels}</g>
           <g id="gu-dots-layer">${guDotsHTML}</g>
         </svg>
         <div class="zoom-controls">
