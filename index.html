@@ -10,7 +10,32 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.0.3">
+  <script>
+    // 錯誤診斷監聽器：如果有任何 JS 載入或執行錯誤，直接顯示在載入畫面上，防止無限轉圈圈且看不出原因
+    window.addEventListener('error', function(e) {
+      // 忽略部分無害的瀏覽器套件錯誤
+      if (e.message && (e.message.includes('Extension') || e.message.includes('extension'))) return;
+      const loadingEl = document.getElementById('loading');
+      if (loadingEl) {
+        loadingEl.innerHTML = '<div style="color: #ff6b6b; padding: 24px; text-align: center; font-family: system-ui, -apple-system, sans-serif; background: rgba(30, 20, 20, 0.8); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 12px; max-width: 90%; margin: 20px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">' +
+          '<h3 style="margin: 0 0 8px 0; font-size: 18px; color: #ff6b6b;">載入失敗 ＞﹏＜</h3>' +
+          '<p style="font-size: 14px; margin: 8px 0; color: #eee; word-break: break-all; line-height: 1.5;">' + e.message + '</p>' +
+          '<p style="font-size: 11px; color: #888; margin: 4px 0 0 0; word-break: break-all;">檔案：' + (e.filename || '').split('/').pop() + ' : ' + e.lineno + ' 行</p>' +
+          '</div>';
+      }
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      const loadingEl = document.getElementById('loading');
+      if (loadingEl) {
+        const reason = e.reason ? (e.reason.message || e.reason) : '未知錯誤';
+        loadingEl.innerHTML = '<div style="color: #ff6b6b; padding: 24px; text-align: center; font-family: system-ui, -apple-system, sans-serif; background: rgba(30, 20, 20, 0.8); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 12px; max-width: 90%; margin: 20px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">' +
+          '<h3 style="margin: 0 0 8px 0; font-size: 18px; color: #ff6b6b;">載入失敗 (Promise Rejection) ＞﹏＜</h3>' +
+          '<p style="font-size: 14px; margin: 8px 0; color: #eee; word-break: break-all; line-height: 1.5;">' + reason + '</p>' +
+          '</div>';
+      }
+    });
+  </script>
 </head>
 <body>
   <canvas id="particles-canvas"></canvas>
@@ -34,7 +59,7 @@
   <!-- Tooltip -->
   <div id="tooltip" class="tooltip" role="tooltip"></div>
 
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <script src="data.js?v=1.0.3"></script>
+  <script src="app.js?v=1.0.3"></script>
 </body>
 </html>

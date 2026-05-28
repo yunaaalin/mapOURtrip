@@ -649,18 +649,31 @@ function initParticles() {
 // GeoJSON Loading
 // ============================================================
 async function loadGeo() {
-  try {
-    const [r1, r2] = await Promise.all([
-      fetch(GEOJSON_URL), fetch(DONG_GEOJSON_URL)
-    ]);
-    S.geoData  = await r1.json();
-    S.dongData = await r2.json();
-    buildDongGuMapping();
-    return true;
-  } catch (e) {
-    console.warn('GeoJSON load failed:', e);
-    return false;
+  const [r1, r2] = await Promise.all([
+    fetch(GEOJSON_URL), fetch(DONG_GEOJSON_URL)
+  ]);
+  
+  if (!r1.ok) {
+    throw new Error(`無法取得行政區邊界資料 (HTTP ${r1.status})，請確認該檔案是否已成功部署在伺服器根目錄。`);
   }
+  if (!r2.ok) {
+    throw new Error(`無法取得地區邊界資料 (HTTP ${r2.status})，請確認該檔案是否已成功部署在伺服器根目錄。`);
+  }
+  
+  try {
+    S.geoData  = await r1.json();
+  } catch (e) {
+    throw new Error(`行政區邊界資料格式解析錯誤：${e.message}`);
+  }
+  
+  try {
+    S.dongData = await r2.json();
+  } catch (e) {
+    throw new Error(`地區邊界資料格式解析錯誤：${e.message}`);
+  }
+  
+  buildDongGuMapping();
+  return true;
 }
 
 function svgSize() {
