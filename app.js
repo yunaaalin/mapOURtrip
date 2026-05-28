@@ -1151,9 +1151,8 @@ function gotoDong(dongKR, highlightId = null) {
           <button class="zoom-btn" id="dist-zoom-out">－</button>
         </div>
       </div>
-      <div class="dong-footer" style="gap: 12px; display: flex;">
-        ${parentGu ? `<button class="btn-home-footer" onclick="gotoGu('${safeAttr(parentGu)}')">回到區地圖</button>` : ''}
-        <button class="btn-home-footer" style="border-color: rgba(160, 134, 100, 0.2); background: transparent; color: var(--text-muted);" onclick="renderHome()">回首頁</button>
+      <div class="dong-footer">
+        <button class="btn-home-footer" onclick="renderHome()">回首頁</button>
       </div>
     </div>
   `;
