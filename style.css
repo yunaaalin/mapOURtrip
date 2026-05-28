@@ -116,12 +116,12 @@ body {
 }
 
 .home-header {
-  position: absolute;
-  top: 22px; left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  top: 0; left: 0;
+  transform: none;
   text-align: center;
   z-index: 5;
-  pointer-events: none;
+  margin-bottom: 8px;
 }
 .home-header h1 {
   font-size: 20px;
@@ -137,17 +137,20 @@ body {
 }
 
 .home-footer {
-  position: absolute;
-  bottom: 28px; left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  bottom: 0; left: 0;
+  transform: none;
   z-index: 5;
   display: flex;
   gap: 10px;
+  margin-top: 8px;
 }
 
 /* ---- Map container ---- */
 .map-wrap {
-  width: 100%; height: 100%;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,8 +203,10 @@ body {
 .district-view { position: relative; }
 
 .district-header {
-  position: absolute;
-  top: 18px; left: 20px;
+  position: relative;
+  top: 0; left: 0;
+  align-self: flex-start;
+  margin: 4px 8px 8px;
   z-index: 5;
   display: flex;
   align-items: center;
@@ -1477,7 +1482,8 @@ body {
     flex-direction: column;
     width: 82%;
     align-items: center;
-    bottom: 22px;
+    bottom: 0;
+    margin-top: 8px;
     gap: 8px;
   }
   .home-footer .btn-pill {
@@ -1564,6 +1570,12 @@ body {
   line-height: 1.8;
   color: #554477;
   font-weight: 500;
+}
+
+/* Map views standard padding and layout box-sizing */
+.home-view, .gu-view, .district-view {
+  padding: 16px 16px 28px;
+  box-sizing: border-box;
 }
 
 

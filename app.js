@@ -1124,8 +1124,9 @@ function gotoDong(dongKR, highlightId = null) {
   }).join('');
 
   // Back button: go to gu view if we know which gu we came from
-  const backLabel = S.gu ? `← ${guCN(S.gu)}` : '← 首頁';
-  const backClick = S.gu ? `gotoGu('${safeAttr(S.gu)}')` : 'renderHome()';
+  const parentGu = S.dongToGu[dongKR] || S.gu;
+  const backLabel = parentGu ? `← ${guCN(parentGu)}` : '← 首頁';
+  const backClick = parentGu ? `gotoGu('${safeAttr(parentGu)}')` : 'renderHome()';
 
   app.innerHTML = `
     <div class="view district-view">
@@ -1150,8 +1151,9 @@ function gotoDong(dongKR, highlightId = null) {
           <button class="zoom-btn" id="dist-zoom-out">－</button>
         </div>
       </div>
-      <div class="dong-footer">
-        <button class="btn-home-footer" onclick="renderHome()">回首頁</button>
+      <div class="dong-footer" style="gap: 12px; display: flex;">
+        ${parentGu ? `<button class="btn-home-footer" onclick="gotoGu('${safeAttr(parentGu)}')">回到區地圖</button>` : ''}
+        <button class="btn-home-footer" style="border-color: rgba(160, 134, 100, 0.2); background: transparent; color: var(--text-muted);" onclick="renderHome()">回首頁</button>
       </div>
     </div>
   `;
@@ -1296,8 +1298,8 @@ function createRestaurantCardHTML(r, isFeedView = false) {
 
   // Return to Map button
   const mapReturnBtn = isFeedView
-    ? `<button class="btn-map-return" onclick="returnToMapFromFeed('${r.id}','${safeAttr(r.dongKR)}')">← 在地圖查看</button>`
-    : `<button class="btn-map-return" onclick="returnToMap('${r.id}','${safeAttr(r.dongKR)}')">← 回到地圖</button>`;
+    ? `<button class="btn-map-return" onclick="returnToMapFromFeed('${r.id}','${safeAttr(r.dongKR)}')">看地圖</button>`
+    : `<button class="btn-map-return" onclick="returnToMap('${r.id}','${safeAttr(r.dongKR)}')">看地圖</button>`;
 
   return `
     <div class="restaurant-rich-card" data-id="${r.id}">
