@@ -241,7 +241,8 @@ body {
   font-size: 11.5px;
   fill: var(--text-primary);
   text-anchor: middle;
-  pointer-events: none;
+  cursor: pointer;
+  pointer-events: auto;
   opacity: 0.72;
   transition: opacity 0.15s;
   paint-order: stroke fill;

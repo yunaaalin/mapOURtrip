@@ -421,18 +421,18 @@ function resolveLabelCollisions(svgId, scale) {
     const boxW = text.length * charW;
     const boxH = fontSize * 1.3;
     
-    const naturalOffset = -12 / shrinkFactor;
+    const naturalOffset = -18 / shrinkFactor;
     
     const candidates = [
-      -12,
-      -25,
-      16,
-      -38,
-      29,
-      -51,
-      42,
-      -64,
-      55
+      -18,
+      -32,
+      22,
+      -46,
+      36,
+      -60,
+      50,
+      -74,
+      64
     ].map(off => off / shrinkFactor);
     
     let chosenOffset = naturalOffset;
@@ -477,19 +477,15 @@ function resolveLabelCollisions(svgId, scale) {
     l.style.display = '';
     
     if (leaderLine) {
-      const isShifted = Math.abs(chosenOffset - naturalOffset) > 2 / shrinkFactor;
-      if (isShifted) {
-        leaderLine.setAttribute('x1', rx.toFixed(1));
-        leaderLine.setAttribute('y1', ry.toFixed(1));
-        leaderLine.setAttribute('x2', rx.toFixed(1));
-        const lineY2 = ry + chosenOffset + (chosenOffset < 0 ? 3 / shrinkFactor : -10 / shrinkFactor);
-        leaderLine.setAttribute('y2', lineY2.toFixed(1));
-        leaderLine.style.display = 'block';
-        leaderLine.style.stroke = 'rgba(255, 255, 255, 0.45)';
-        leaderLine.style.strokeWidth = (0.8 / shrinkFactor).toFixed(2);
-      } else {
-        leaderLine.style.display = 'none';
-      }
+      // Always show thicker leader line for high legibility
+      leaderLine.setAttribute('x1', rx.toFixed(1));
+      leaderLine.setAttribute('y1', ry.toFixed(1));
+      leaderLine.setAttribute('x2', rx.toFixed(1));
+      const lineY2 = ry + chosenOffset + (chosenOffset < 0 ? 3 / shrinkFactor : -10 / shrinkFactor);
+      leaderLine.setAttribute('y2', lineY2.toFixed(1));
+      leaderLine.style.display = 'block';
+      leaderLine.style.stroke = 'rgba(255, 255, 255, 0.65)';
+      leaderLine.style.strokeWidth = (1.25 / shrinkFactor).toFixed(2);
     }
   });
 }
@@ -883,9 +879,7 @@ function gotoGu(guName) {
          onclick="openModal('${r.id}')"
          onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
          onmouseleave="hideTip()">
-        <line class="label-line" x1="${rx.toFixed(1)}" y1="${ry.toFixed(1)}" x2="${rx.toFixed(1)}" y2="${(ry-10).toFixed(1)}" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" style="display:none;"/>
         ${shape}
-        <text class="dot-label" x="${rx.toFixed(1)}" y="${(ry-10).toFixed(1)}" font-size="8">${r.nameCN}</text>
       </g>`;
   }).join('');
 
