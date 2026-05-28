@@ -1,0 +1,1287 @@
+/* ================================
+   Seoul Eats — style.css
+   Earthy minimal, monochromatic
+   ================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+/* ---- Design Tokens ---- */
+:root {
+  --bg:              #EDE4D3;
+  --bg-deep:         #E2D5BC;
+  --text-primary:    #3A2E20;
+  --text-secondary:  #8A7358;
+  --text-muted:      #B0997A;
+
+  --seoul-fill:      #C8DAB5;
+  --seoul-stroke:    #7A9D68;
+
+  --dist-fill:       #B8D0DC;
+  --dist-stroke:     #6A97AB;
+  --dist-text:       #5A87A0;
+
+  --particle:        rgba(160, 134, 100, 0.28);
+
+  --modal-bg:        rgba(245, 239, 226, 0.97);
+  --divider:         rgba(160, 134, 100, 0.2);
+  --tag-bg:          rgba(160, 134, 100, 0.12);
+  --tag-border:      rgba(160, 134, 100, 0.3);
+
+  /* Category colours — warm spectrum */
+  --cat-cafe:    #D4896A;
+  --cat-snack:   #C8A84B;
+  --cat-korean:  #B85E3F;
+  --cat-pasta:   #CC7D42;
+  --cat-bbq:     #A63228;
+  --cat-soup:    #BE7A38;
+  --cat-gukbap:  #A85A2D;
+  --cat-noodle:  #9E7830;
+  --cat-hotel:   #4A7FA5;
+}
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  /* Subtle noise grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+/* ---- Particles canvas ---- */
+#particles-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- App container ---- */
+#app {
+  position: fixed; inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Loading ---- */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+}
+.loading-dots {
+  display: flex; gap: 6px;
+}
+.loading-dots span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--dist-stroke);
+  animation: ldot 1.4s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes ldot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ---- Views (shared) ---- */
+.view {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  animation: viewFadeIn 0.35s ease;
+}
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   HOME VIEW
+   ============================================================ */
+.home-view {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-header {
+  position: absolute;
+  top: 22px; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+}
+.home-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: var(--text-primary);
+}
+.home-header p {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  margin-top: 3px;
+}
+
+.home-footer {
+  position: absolute;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+}
+
+/* ---- Map container ---- */
+.map-wrap {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-wrap svg {
+  max-width: 88vw;
+  max-height: 82vh;
+}
+
+/* ---- Seoul & district paths ---- */
+.seoul-bg path {
+  fill: var(--seoul-fill);
+  stroke: var(--seoul-stroke);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.district-layer path {
+  fill: var(--dist-fill);
+  stroke: var(--dist-stroke);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 0.2s, filter 0.2s, stroke-width 0.2s;
+}
+.district-layer path:hover {
+  fill: #D0E8F4;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 11px rgba(106,151,171,0.65));
+}
+
+.district-label {
+  font-family: 'Outfit', sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  fill: var(--dist-text);
+}
+.lbl-cn { font-size: 12px; font-weight: 600; }
+.lbl-kr { font-size: 9px;  font-weight: 400; opacity: 0.85; }
+
+/* ============================================================
+   DISTRICT VIEW
+   ============================================================ */
+.district-view { position: relative; }
+
+.district-header {
+  position: absolute;
+  top: 18px; left: 20px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.district-name-block .dn-cn {
+  font-size: 20px; font-weight: 600;
+  color: var(--text-primary);
+}
+.district-name-block .dn-sub {
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* District background shape */
+.dist-bg-shape {
+  fill: var(--seoul-fill);
+  stroke: var(--seoul-stroke);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+/* ---- Restaurant dots ---- */
+.rest-dot {
+  cursor: pointer;
+}
+.rest-dot circle.dot-circle {
+  stroke: rgba(255,255,255,0.85);
+  stroke-width: 2;
+  transition: r 0.15s, filter 0.15s;
+}
+.rest-dot:hover circle.dot-circle {
+  filter: drop-shadow(0 2px 7px rgba(0,0,0,0.28));
+}
+.rest-dot .dot-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 9px;
+  fill: var(--text-primary);
+  text-anchor: middle;
+  pointer-events: none;
+  opacity: 0.72;
+  transition: opacity 0.15s;
+  paint-order: stroke fill;
+  stroke: rgba(237,228,211,0.85);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.rest-dot:hover .dot-label { opacity: 1; }
+
+/* Hotel dot */
+.hotel-dot circle { fill: var(--cat-hotel); }
+.hotel-dot text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 9px;
+  fill: var(--cat-hotel);
+  text-anchor: middle;
+  font-weight: 500;
+}
+
+/* Blink animation (JS controlled) */
+@keyframes dotBlink {
+  0%   { opacity: 1;   r: 8;  }
+  45%  { opacity: 0.15; r: 13; }
+  90%  { opacity: 1;   r: 8;  }
+  100% { opacity: 1;   r: 8;  }
+}
+.dot-blinking {
+  animation: dotBlink 0.75s ease-in-out 3 forwards;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-back {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(160,134,100,0.5);
+  background: rgba(245,239,226,0.82);
+  color: var(--text-secondary);
+  font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: transform 0.18s, border-color 0.18s;
+  flex-shrink: 0;
+}
+.btn-back:hover { transform: scale(1.1); border-color: var(--text-muted); }
+
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 22px;
+  border-radius: 100px;
+  border: 1.5px solid var(--dist-stroke);
+  background: rgba(184,208,220,0.14);
+  color: var(--dist-stroke);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: background 0.18s, transform 0.18s;
+}
+.btn-pill:hover {
+  background: rgba(184,208,220,0.28);
+  transform: translateY(-2px);
+}
+
+.btn-map-return {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  border-radius: 10px;
+  border: 1.5px solid var(--dist-stroke);
+  background: rgba(184,208,220,0.12);
+  color: var(--dist-stroke);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-map-return:hover { background: rgba(184,208,220,0.25); }
+
+/* ============================================================
+   TOOLTIP
+   ============================================================ */
+.tooltip {
+  position: fixed;
+  padding: 6px 12px;
+  background: rgba(245,239,226,0.96);
+  border: 1px solid rgba(160,134,100,0.3);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+  pointer-events: none;
+  z-index: 200;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  transform: translate(-50%, -140%);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.tooltip.visible { opacity: 1; }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(58,46,32,0.28);
+  backdrop-filter: blur(5px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: viewFadeIn 0.2s ease;
+}
+.modal-overlay.hidden { display: none; }
+
+.modal-box {
+  background: var(--modal-bg);
+  border: 1px solid rgba(160,134,100,0.35);
+  border-radius: 22px;
+  padding: 28px 26px 22px;
+  max-width: 460px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.18);
+}
+
+/* Modal scrollbar */
+.modal-box::-webkit-scrollbar { width: 3px; }
+.modal-box::-webkit-scrollbar-thumb { background: rgba(160,134,100,0.35); border-radius: 3px; }
+
+.modal-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(160,134,100,0.4);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: rgba(160,134,100,0.15); }
+
+/* Modal content */
+.m-name-cn { font-size: 22px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+.m-name-kr { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+
+.m-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.4px;
+}
+
+.m-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.m-hash {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.m-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 16px 0;
+}
+
+.m-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 11px;
+  font-size: 13px;
+}
+.m-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  min-width: 54px;
+  padding-top: 1.5px;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.m-value { color: var(--text-primary); flex: 1; line-height: 1.6; }
+
+/* ── Rating row ── */
+.m-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  flex-wrap: wrap;
+}
+.m-star {
+  font-size: 15px;
+  color: #C8A84B;
+}
+.m-rating-num {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+.m-review-cnt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.btn-ig {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #c13584;
+  text-decoration: none;
+  padding: 4px 9px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(193, 53, 132, 0.35);
+  background: rgba(193, 53, 132, 0.07);
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btn-ig:hover {
+  background: rgba(193, 53, 132, 0.16);
+  border-color: rgba(193, 53, 132, 0.55);
+}
+
+/* ── Info section (dish / location / address / walk) ── */
+.m-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2px 0;
+}
+.m-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.m-info-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+  margin-top: 1px;
+}
+.m-info-content { flex: 1; min-width: 0; }
+.m-info-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.m-info-val {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+.m-addr {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.m-kr-small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.m-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 11px;
+}
+
+
+.m-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.m-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+
+/* External link buttons (Google Maps / Naver) */
+.btn-ext-link {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--dist-stroke);
+  background: rgba(184,208,220,0.12);
+  color: var(--dist-stroke);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-ext-link:hover { background: rgba(184,208,220,0.28); }
+.btn-naver {
+  border-color: #5A7F5A;
+  color: #5A7F5A;
+  background: rgba(90,127,90,0.07);
+}
+.btn-naver:hover { background: rgba(90,127,90,0.16); }
+
+/* ============================================================
+   CATEGORY VIEW
+   ============================================================ */
+.cat-view {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.cat-view::-webkit-scrollbar { width: 3px; }
+.cat-view::-webkit-scrollbar-thumb { background: rgba(160,134,100,0.3); border-radius: 3px; }
+
+.cat-header {
+  position: sticky; top: 0;
+  background: rgba(237,228,211,0.96);
+  backdrop-filter: blur(10px);
+  padding: 16px 20px 13px;
+  border-bottom: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+.cat-header-title {
+  font-size: 17px; font-weight: 600;
+  color: var(--text-primary);
+}
+.cat-header-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.cat-body { padding: 8px 20px 60px; }
+
+/* Category section */
+.cat-section { margin-bottom: 4px; }
+
+.cat-section-hd {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 4px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.cat-section-hd:hover { background: rgba(160,134,100,0.07); }
+
+.cat-section-name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cat-section-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.cat-dot-badge {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cat-section-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.cat-section-cnt {
+  font-size: 11px; color: var(--text-muted);
+  background: var(--tag-bg);
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.cat-arrow {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 14px;
+  transition: transform 0.22s;
+}
+.cat-arrow.open { transform: rotate(90deg); }
+
+/* Hashtag row */
+.tag-row {
+  display: none;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 4px 14px 12px;
+}
+.tag-row.open { display: flex; }
+
+.tag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 8px;
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border);
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.tag-btn:hover {
+  background: rgba(160,134,100,0.22);
+  transform: translateY(-1px);
+}
+.tag-btn.active {
+  background: rgba(106,151,171,0.18);
+  border-color: var(--dist-stroke);
+  color: var(--dist-text);
+}
+.tag-cnt {
+  font-size: 10px;
+  background: rgba(160,134,100,0.22);
+  color: var(--text-secondary);
+  border-radius: 100px;
+  padding: 1px 6px;
+  font-weight: 500;
+}
+
+/* Inline restaurant list */
+.inline-rest-list {
+  display: none;
+  flex-direction: column;
+  gap: 9px;
+  padding: 0 4px 14px;
+}
+.inline-rest-list.open { display: flex; }
+
+.rest-card {
+  background: rgba(245,239,226,0.75);
+  border: 1px solid rgba(160,134,100,0.22);
+  border-radius: 12px;
+  padding: 13px 15px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.rest-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+.rest-card-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.rest-card-info { flex: 1; min-width: 0; }
+.rest-card-cn { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.rest-card-kr { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.rest-card-tags {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px;
+}
+.rest-card-district {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+/* ============================================================
+   HOME MAP — DONG HIGHLIGHTS & GU ZONES
+   ============================================================ */
+
+/* Warm pulsing patches for restaurant dongs */
+.home-dong-highlight {
+  fill: rgba(196, 101, 44, 0.30);
+  stroke: rgba(180, 80, 25, 0.52);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  pointer-events: none;
+  animation: dongPulse 3.2s ease-in-out infinite;
+}
+@keyframes dongPulse {
+  0%, 100% { fill: rgba(196, 101, 44, 0.28); }
+  50%       { fill: rgba(210, 120, 50, 0.44); }
+}
+
+/* Invisible interactive gu zones */
+.home-gu-zone {
+  fill: transparent;
+  stroke: none;
+  cursor: pointer;
+  transition: fill 0.2s;
+}
+.home-gu-zone:hover {
+  fill: rgba(210, 120, 50, 0.08);
+}
+
+/* ============================================================
+   GU HOVER POPUP
+   ============================================================ */
+.gu-popup {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  pointer-events: none;
+  /* outer wrapper is non-interactive, inner card handles events */
+}
+
+.gu-popup-inner {
+  pointer-events: auto;
+  background: rgba(245, 239, 228, 0.97);
+  border: 1px solid rgba(160, 134, 100, 0.28);
+  border-radius: 24px;
+  padding: 20px 22px 14px;
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.20),
+    0 0 0 1px rgba(160, 134, 100, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  max-width: 92vw;
+  /* entrance animation: starts invisible + shifted down + small */
+  opacity: 0;
+  transform: translateY(22px) scale(0.88);
+  transition:
+    opacity    0.28s ease,
+    transform  0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* When popup becomes visible, animate in */
+.gu-popup.visible .gu-popup-inner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.gu-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.gu-popup-titles {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.gu-popup-cn {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.gu-popup-kr {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.gu-popup-close {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(160, 134, 100, 0.30);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gu-popup-close:hover {
+  background: rgba(160, 134, 100, 0.14);
+  border-color: rgba(160, 134, 100, 0.50);
+}
+
+.gu-popup-svg {
+  display: block;
+  max-width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* The gu background shape inside the popup */
+.gu-popup-bg {
+  fill: var(--seoul-fill);
+  stroke: var(--seoul-stroke);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* Dong clickable paths inside popup */
+.popup-dong {
+  fill: var(--dist-fill);
+  stroke: var(--dist-stroke);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 0.18s, filter 0.18s, stroke-width 0.18s;
+}
+.popup-dong:hover {
+  fill: #cce8f0;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px rgba(106, 151, 171, 0.55));
+}
+
+/* Dong labels inside popup */
+.popup-dong-label {
+  font-family: 'Outfit', sans-serif;
+  text-anchor: middle;
+  fill: var(--dist-text);
+  font-weight: 600;
+  pointer-events: none;
+  dominant-baseline: central;
+}
+
+.popup-dong-cnt {
+  font-family: 'Outfit', sans-serif;
+  text-anchor: middle;
+  fill: var(--text-muted);
+  pointer-events: none;
+  dominant-baseline: central;
+}
+
+.gu-popup-hint {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 11px;
+  letter-spacing: 0.4px;
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(160,134,100,0.3); border-radius: 4px; }
+
+/* ============================================================
+   HOME MAP — GU LABELS + ZONE OVERLAY
+   ============================================================ */
+
+/* Gu name labels on home map (only restaurant gu's) */
+.gu-home-label {
+  font-family: 'Outfit', sans-serif;
+  fill: var(--dist-text);
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-weight: 700;
+  pointer-events: none;
+  paint-order: stroke fill;
+  stroke: rgba(237, 228, 211, 0.88);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+/* Pulsing warm dong patches */
+.home-dong-highlight {
+  fill: rgba(196, 101, 44, 0.28);
+  stroke: rgba(180, 80, 25, 0.48);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  pointer-events: none;
+  animation: dongPulse 3.4s ease-in-out infinite;
+}
+@keyframes dongPulse {
+  0%, 100% { fill: rgba(196, 101, 44, 0.26); }
+  50%       { fill: rgba(215, 120, 50, 0.42); }
+}
+
+/* Invisible interactive gu zones */
+.home-gu-zone {
+  fill: transparent;
+  stroke: none;
+  cursor: pointer;
+  transition: fill 0.18s;
+}
+.home-gu-zone:hover {
+  fill: rgba(106, 151, 171, 0.10);
+}
+
+/* ============================================================
+   GU DETAIL VIEW
+   ============================================================ */
+
+/* Gu background shape */
+.gu-bg-shape {
+  fill: var(--seoul-fill);
+  stroke: var(--seoul-stroke);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* Blue clickable dong blocks */
+.gu-dong-block {
+  fill: rgba(80, 155, 195, 0.30);
+  stroke: rgb(55, 125, 170);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 0.18s, filter 0.18s, stroke-width 0.18s;
+}
+.gu-dong-block:hover {
+  fill: rgba(80, 155, 195, 0.60);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 10px rgba(55, 125, 170, 0.50));
+}
+
+/* Dong name labels in gu view */
+.gu-dong-label {
+  font-family: 'Outfit', sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #2d6b92;
+  font-weight: 700;
+  pointer-events: none;
+  paint-order: stroke fill;
+  stroke: rgba(237, 228, 211, 0.85);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.gu-dong-cnt {
+  font-family: 'Outfit', sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--text-muted);
+  pointer-events: none;
+  paint-order: stroke fill;
+  stroke: rgba(237, 228, 211, 0.80);
+  stroke-width: 3px;
+}
+
+/* Hint bar at bottom of gu view */
+.gu-hint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 12px 20px 18px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+/* ============================================================
+   DONG VIEW FOOTER — HOME BUTTON
+   ============================================================ */
+.dong-footer {
+  display: flex;
+  justify-content: center;
+  padding: 10px 20px 18px;
+}
+
+.btn-home-footer {
+  padding: 11px 32px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(160, 134, 100, 0.38);
+  background: rgba(160, 134, 100, 0.09);
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.btn-home-footer:hover {
+  background: rgba(160, 134, 100, 0.20);
+  border-color: rgba(160, 134, 100, 0.60);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   MODAL — CLICKABLE CATEGORY + HASHTAG BADGES
+   ============================================================ */
+.m-cat-clickable {
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+}
+.m-cat-clickable:hover {
+  opacity: 0.82;
+  transform: scale(1.04);
+}
+
+.m-hash-clickable {
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.m-hash-clickable:hover {
+  background: rgba(160, 134, 100, 0.22);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   LIST VIEW — FILTER INDICATORS
+   ============================================================ */
+.cat-filter-active {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.cat-filter-active:hover { opacity: 0.80; }
+
+.cat-filter-tag {
+  background: rgba(106, 151, 171, 0.75);
+  color: white;
+}
+
+/* Empty state */
+.list-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 60px 20px;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================================
+   TOAST NOTIFICATION SYSTEM
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast-msg {
+  background: rgba(58, 46, 32, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 239, 226, 0.15);
+  color: #F5EFE2;
+  padding: 10px 22px;
+  border-radius: 100px;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.175);
+  white-space: nowrap;
+}
+.toast-msg.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   SVG STARS & MUST-EAT MARKERS
+   ============================================================ */
+.rest-dot polygon.dot-star {
+  fill: #F3C63F;
+  stroke: #D69E10;
+  stroke-width: 1.2px;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.22s;
+  transform-origin: center;
+}
+.rest-dot:hover polygon.dot-star {
+  transform: scale(1.28);
+  filter: drop-shadow(0 2px 8px rgba(243, 198, 63, 0.65));
+}
+.rest-dot.dot-is-must .dot-label {
+  fill: #A07810;
+  font-weight: 600;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 3.5px;
+}
+
+/* ============================================================
+   MUST EAT VIEW & HEADER
+   ============================================================ */
+.must-eat-view {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.must-eat-view::-webkit-scrollbar { width: 3px; }
+.must-eat-view::-webkit-scrollbar-thumb { background: rgba(160,134,100,0.3); border-radius: 3px; }
+
+.must-eat-header {
+  position: sticky; top: 0;
+  background: rgba(237,228,211,0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 16px 20px 13px;
+  border-bottom: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+.must-eat-header-title {
+  font-size: 17px; font-weight: 600;
+  color: var(--text-primary);
+}
+.must-eat-header-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.btn-share-list {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px dashed #5A7F5A;
+  background: rgba(90,127,90,0.07);
+  color: #5A7F5A;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-share-list:hover {
+  background: rgba(90,127,90,0.16);
+  border-style: solid;
+  transform: translateY(-1px);
+}
+
+.must-eat-body {
+  padding: 20px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.must-eat-cards-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Bookmarks card styles */
+.must-eat-cards-feed .restaurant-rich-card {
+  background: var(--modal-bg);
+  border: 1px solid rgba(160, 134, 100, 0.28);
+  border-radius: 20px;
+  padding: 22px 20px;
+  box-shadow: 0 8px 30px rgba(58, 46, 32, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.must-eat-cards-feed .restaurant-rich-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(58, 46, 32, 0.08);
+}
+
+/* ============================================================
+   RICH CARD HEADER & TOGGLE BUTTON
+   ============================================================ */
+.m-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.m-card-header-titles {
+  flex: 1;
+  min-width: 0;
+}
+.btn-must-eat-card-toggle {
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(196, 101, 44, 0.35);
+  background: transparent;
+  color: #C4652C;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-must-eat-card-toggle:hover {
+  background: rgba(196, 101, 44, 0.08);
+  border-color: #C4652C;
+}
+.btn-must-eat-card-toggle.is-active {
+  background: #F3C63F;
+  border-color: #D69E10;
+  color: #3A2E20;
+  box-shadow: 0 2px 8px rgba(243, 198, 63, 0.25);
+}
+.btn-must-eat-card-toggle.is-active:hover {
+  background: #E5B730;
+  border-color: #C8910E;
+}
+
+/* Home pill must eat custom styling */
+.btn-must-eat {
+  border-color: #D69E10;
+  color: #9C7B1A;
+  background: rgba(243, 198, 63, 0.07);
+}
+.btn-must-eat:hover {
+  background: rgba(243, 198, 63, 0.16);
+  border-color: #C8910E;
+}
+

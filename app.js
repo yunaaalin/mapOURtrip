@@ -1,0 +1,1007 @@
+/* =============================================
+   app.js — Seoul Eats SPA v4
+   Flow: Home → Gu View → Dong View → Modal
+   ============================================= */
+'use strict';
+
+// ============================================================
+// Constants
+// ============================================================
+const GEOJSON_URL      = 'https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_municipalities_geo_simple.json';
+const DONG_GEOJSON_URL = 'https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_submunicipalities_geo_simple.json';
+
+const SEOUL_BOUNDS = { minLng: 126.764, maxLng: 127.183, minLat: 37.428, maxLat: 37.701 };
+
+const DONG_KR_TO_CN = {
+  '연남동':          '延南洞',
+  '종로1·2·3·4가동': '廣藏市場一帶',
+  '성수1가2동':      '聖水洞',
+  '성수1가1동':      '聖水洞（北）',
+  '성수2가3동':      '聖水洞（南）',
+  '성산1동':         '聖山洞（望遠）',
+  '성산2동':         '聖山洞',
+  '서교동':          '西橋洞（弘大）',
+  '망원2동':         '望遠洞',
+  '명동':            '明洞',
+  '원효로1동':       '元曉路洞',
+  '삼청동':          '三清洞',
+  '잠원동':          '蠶院洞',
+  '사직동':          '社稷洞',
+  '종로5·6가동':     '鐘路五六街',
+  '화곡6동':         '花谷洞',
+  '안암동':          '安岩洞',
+  '신당동':          '新堂洞',
+  '중림동':          '中林洞',
+  '가양1동':         '加陽洞',
+  '광희동':          '光熙洞',
+  '수유2동':         '水踰洞',
+  '서초4동':         '瑞草洞',
+  '신사동':          '新沙洞（江南）',
+};
+
+const GU_KR_TO_CN = {
+  '마포구': '麻浦區', '종로구': '鐘路區', '중구': '中區',
+  '용산구': '龍山區', '강남구': '江南區', '성동구': '城東區',
+  '동대문구': '東大門區', '서대문구': '西大門區', '서초구': '瑞草區',
+  '영등포구': '永登浦區', '은평구': '恩平區', '노원구': '蘆原區',
+  '성북구': '城北區', '광진구': '廣津區', '강서구': '江西區',
+  '강북구': '江北區',
+};
+
+// ============================================================
+// State & Storage
+// ============================================================
+const MUST_EAT_KEY = 'seoul_must_eat';
+let mustEatIds = [];
+
+const S = {
+  geoData:   null,
+  dongData:  null,
+  guToDongs: {},
+  dongToGu:  {},
+  view:      'loading',
+  gu:        null,   // current gu name (for back nav from dong view)
+  dong:      null,
+  openDong:  null,
+  fromModal: null,
+};
+
+function loadMustEat() {
+  const saved = localStorage.getItem(MUST_EAT_KEY);
+  if (saved) {
+    try {
+      mustEatIds = JSON.parse(saved);
+    } catch (e) {
+      mustEatIds = [];
+    }
+  }
+}
+
+function saveMustEat() {
+  localStorage.setItem(MUST_EAT_KEY, JSON.stringify(mustEatIds));
+}
+
+function isMustEat(id) {
+  return mustEatIds.includes(id);
+}
+
+function toggleMustEat(id) {
+  const idx = mustEatIds.indexOf(id);
+  if (idx === -1) {
+    mustEatIds.push(id);
+    showToast('已加入「我必須吃到！」清單 🐽🍴');
+  } else {
+    mustEatIds.splice(idx, 1);
+    showToast('已移出「我必須吃到！」清單');
+  }
+  saveMustEat();
+  
+  if (S.fromModal && S.fromModal.restaurantId === id) {
+    openModal(id);
+  }
+  
+  refreshCurrentView();
+}
+
+function refreshCurrentView() {
+  if (S.view === 'home') renderHome();
+  else if (S.view === 'gu') gotoGu(S.gu);
+  else if (S.view === 'dong') gotoDong(S.dong);
+  else if (S.view === 'donglist') renderDongListView();
+  else if (S.view === 'musteatlist') renderMustEatListView();
+}
+
+// ── Lightweight Toast Notification ──
+function showToast(msg) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => { el.classList.add('visible'); }, 50);
+  setTimeout(() => {
+    el.classList.remove('visible');
+    setTimeout(() => { el.remove(); }, 300);
+  }, 2800);
+}
+
+// ── SVG Star Generator ──
+function getStarPoints(cx, cy, spikes = 5, outerRadius = 9, innerRadius = 4.2) {
+  let rot = Math.PI / 2 * 3;
+  let x = cx;
+  let y = cy;
+  let step = Math.PI / spikes;
+  let points = [];
+
+  for (let i = 0; i < spikes; i++) {
+    x = cx + Math.cos(rot) * outerRadius;
+    y = cy + Math.sin(rot) * outerRadius;
+    points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+    rot += step;
+
+    x = cx + Math.cos(rot) * innerRadius;
+    y = cy + Math.sin(rot) * innerRadius;
+    points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+    rot += step;
+  }
+  return points.join(' ');
+}
+
+// ============================================================
+// Projection Utilities
+// ============================================================
+function project(lng, lat, bounds, W, H, pad = 32) {
+  const x = ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * (W - pad*2) + pad;
+  const y = ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * (H - pad*2) + pad;
+  return [x, y];
+}
+
+function ringToD(ring, bounds, W, H, pad) {
+  return ring.map((c, i) => {
+    const [x, y] = project(c[0], c[1], bounds, W, H, pad);
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ') + 'Z';
+}
+
+function geomToD(geom, bounds, W, H, pad = 32) {
+  const toPath = (polys) => polys.map(ring => ringToD(ring, bounds, W, H, pad)).join(' ');
+  if (geom.type === 'Polygon')      return toPath(geom.coordinates);
+  if (geom.type === 'MultiPolygon') return geom.coordinates.map(poly => toPath(poly)).join(' ');
+  return '';
+}
+
+function getFeatureBounds(feat) {
+  let mnLng = Infinity, mxLng = -Infinity, mnLat = Infinity, mxLat = -Infinity;
+  const walk = c => {
+    if (typeof c[0] === 'number') {
+      if (c[0] < mnLng) mnLng = c[0]; if (c[0] > mxLng) mxLng = c[0];
+      if (c[1] < mnLat) mnLat = c[1]; if (c[1] > mxLat) mxLat = c[1];
+    } else c.forEach(walk);
+  };
+  walk(feat.geometry.coordinates);
+  return { minLng: mnLng, maxLng: mxLng, minLat: mnLat, maxLat: mxLat };
+}
+
+function padBounds(b, factor = 0.22) {
+  const dlng = (b.maxLng - b.minLng) * factor;
+  const dlat = (b.maxLat - b.minLat) * factor;
+  return { minLng: b.minLng - dlng, maxLng: b.maxLng + dlng,
+           minLat: b.minLat - dlat, maxLat: b.maxLat + dlat };
+}
+
+function centroid(feat) {
+  let sx = 0, sy = 0, n = 0;
+  const walk = c => {
+    if (typeof c[0] === 'number') { sx += c[0]; sy += c[1]; n++; }
+    else c.forEach(walk);
+  };
+  walk(feat.geometry.coordinates);
+  return [sx/n, sy/n];
+}
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ============================================================
+// Geo helpers — dong→gu mapping
+// ============================================================
+function pointInRing(x, y, ring) {
+  let inside = false;
+  let p1x = ring[0][0], p1y = ring[0][1];
+  for (let i = 1; i <= ring.length; i++) {
+    const [p2x, p2y] = ring[i % ring.length];
+    if (y > Math.min(p1y, p2y) && y <= Math.max(p1y, p2y) && x <= Math.max(p1x, p2x)) {
+      if (p1y !== p2y) {
+        const xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x;
+        if (p1x === p2x || x <= xinters) inside = !inside;
+      }
+    }
+    p1x = p2x; p1y = p2y;
+  }
+  return inside;
+}
+
+function pointInFeatureCheck(lng, lat, feat) {
+  const geom  = feat.geometry;
+  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+  for (const poly of polys) {
+    if (pointInRing(lng, lat, poly[0])) return true;
+  }
+  return false;
+}
+
+function buildDongGuMapping() {
+  const usedDongs = [...new Set(RESTAURANTS.map(r => r.dongKR).filter(Boolean))];
+  S.dongToGu  = {};
+  S.guToDongs = {};
+  usedDongs.forEach(dongKR => {
+    const dongFeat = dongFeature(dongKR);
+    if (!dongFeat) return;
+    const [dlng, dlat] = centroid(dongFeat);
+    for (const guFeat of S.geoData.features) {
+      if (pointInFeatureCheck(dlng, dlat, guFeat)) {
+        const guName = guFeat.properties.name;
+        S.dongToGu[dongKR] = guName;
+        if (!S.guToDongs[guName]) S.guToDongs[guName] = [];
+        if (!S.guToDongs[guName].includes(dongKR)) S.guToDongs[guName].push(dongKR);
+        break;
+      }
+    }
+  });
+}
+
+// ============================================================
+// Rendering helpers
+// ============================================================
+function catColor(catName) { return CATEGORY_COLORS[catName] || '#C8A84B'; }
+function dongCN(dongKR)    { return DONG_KR_TO_CN[dongKR] || dongKR; }
+function guCN(guKR)        { return GU_KR_TO_CN[guKR] || guKR; }
+
+function dongFeature(dongKR) {
+  if (!S.dongData) return null;
+  return S.dongData.features.find(f => f.properties.name === dongKR);
+}
+
+function safeAttr(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+// ============================================================
+// Particle System
+// ============================================================
+function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx    = canvas.getContext('2d');
+  let pts      = [];
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  function spawn() {
+    pts = Array.from({ length: 50 }, () => ({
+      x: Math.random() * canvas.width,  y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.4,
+      vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
+      a: Math.random() * 0.28 + 0.07,
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;  if (p.x > canvas.width)  p.x = 0;
+      if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(160,134,100,${p.a})`; ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); spawn(); draw();
+  window.addEventListener('resize', () => { resize(); spawn(); });
+}
+
+// ============================================================
+// GeoJSON Loading
+// ============================================================
+async function loadGeo() {
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(GEOJSON_URL), fetch(DONG_GEOJSON_URL)
+    ]);
+    S.geoData  = await r1.json();
+    S.dongData = await r2.json();
+    buildDongGuMapping();
+    return true;
+  } catch (e) {
+    console.warn('GeoJSON load failed:', e);
+    return false;
+  }
+}
+
+function svgSize() {
+  return [Math.min(window.innerWidth * 0.86, 720), Math.min(window.innerHeight * 0.78, 620)];
+}
+
+// ============================================================
+// VIEW 1 — HOME
+// Flat Seoul + warm dong patches + gu name labels
+// Hover gu → tooltip; Click gu → gotoGu()
+// ============================================================
+function renderHome() {
+  S.view = 'home';
+  S.gu   = null;
+  const app    = document.getElementById('app');
+  const [W, H] = svgSize();
+
+  let seoulBgPaths   = '';
+  let dongHighlights = '';
+  let guLabels       = '';
+  let guZones        = '';
+
+  if (S.geoData && S.dongData) {
+    // 1) Flat Seoul background
+    S.geoData.features.forEach(f => {
+      seoulBgPaths += `<path d="${geomToD(f.geometry, SEOUL_BOUNDS, W, H, 30)}"/>`;
+    });
+
+    // 2) Warm dong highlights
+    const usedDongs = [...new Set(RESTAURANTS.map(r => r.dongKR).filter(Boolean))];
+    usedDongs.forEach(dongKR => {
+      const feat = dongFeature(dongKR);
+      if (!feat) return;
+      dongHighlights += `<path class="home-dong-highlight" d="${geomToD(feat.geometry, SEOUL_BOUNDS, W, H, 30)}"/>`;
+    });
+
+    // 3) Gu name labels + invisible hover/click zones
+    const labelSz = Math.max(8, Math.min(12, Math.round(7200 / W)));
+    Object.keys(S.guToDongs).forEach(guName => {
+      const guFeat = S.geoData.features.find(f => f.properties.name === guName);
+      if (!guFeat) return;
+      const d = geomToD(guFeat.geometry, SEOUL_BOUNDS, W, H, 30);
+      const [clng, clat] = centroid(guFeat);
+      const [cx, cy]     = project(clng, clat, SEOUL_BOUNDS, W, H, 30);
+      const cn = guCN(guName);
+
+      guLabels += `
+        <text class="gu-home-label" font-size="${labelSz}"
+              x="${cx.toFixed(1)}" y="${cy.toFixed(1)}">${cn}</text>
+      `;
+
+      guZones += `<path class="home-gu-zone" d="${d}"
+        onmouseenter="showTip(event,'進入${safeAttr(cn)}？')"
+        onmouseleave="hideTip()"
+        onclick="hideTip();gotoGu('${safeAttr(guName)}')"/>`;
+    });
+  }
+
+  app.innerHTML = `
+    <div class="view home-view">
+      <div class="home-header">
+        <h1>首爾豬什麼🐽🍴</h1>
+        <p>點選有橙色標記的地區，進入行政區查看餐廳</p>
+      </div>
+      <div class="map-wrap">
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="home-svg">
+          <g class="seoul-bg">${seoulBgPaths}</g>
+          <g class="home-dong-layer">${dongHighlights}</g>
+          <g class="home-gu-label-layer">${guLabels}</g>
+          <g class="home-gu-zones">${guZones}</g>
+        </svg>
+      </div>
+      <div class="home-footer">
+        <button class="btn-pill" onclick="renderDongListView()">⊞ 全部清單</button>
+        <button class="btn-pill btn-must-eat" onclick="renderMustEatListView()">⭐ 我必須吃到！</button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// VIEW 2 — GU DETAIL
+// Shows gu shape with blue clickable dong blocks
+// ============================================================
+function gotoGu(guName) {
+  S.view = 'gu';
+  S.gu   = guName;
+  const app    = document.getElementById('app');
+  const guFeat = S.geoData.features.find(f => f.properties.name === guName);
+  if (!guFeat) { renderHome(); return; }
+
+  const cn    = guCN(guName);
+  const dongs = S.guToDongs[guName] || [];
+
+  const bounds = padBounds(getFeatureBounds(guFeat), 0.16);
+  const [W, H] = [Math.min(window.innerWidth * 0.9, 820), Math.min(window.innerHeight * 0.80, 660)];
+  const pad    = 46;
+
+  const guPath  = geomToD(guFeat.geometry, bounds, W, H, pad);
+  const labelSz = Math.max(10, Math.min(16, Math.round(5800 / W)));
+
+  let dongPaths  = '';
+  let dongLabels = '';
+
+  dongs.forEach(dongKR => {
+    const feat = dongFeature(dongKR);
+    if (!feat) return;
+    const d = geomToD(feat.geometry, bounds, W, H, pad);
+    const [clng, clat] = centroid(feat);
+    const [cx, cy]     = project(clng, clat, bounds, W, H, pad);
+    const dcn = dongCN(dongKR);
+    const cnt = RESTAURANTS.filter(r => r.dongKR === dongKR).length;
+
+    dongPaths  += `<path class="gu-dong-block" d="${d}"
+      onclick="gotoDong('${safeAttr(dongKR)}')"
+      onmouseenter="showTip(event,'${safeAttr(dcn)}・${cnt}間 →')"
+      onmouseleave="hideTip()"/>`;
+    dongLabels += `
+      <text class="gu-dong-label" font-size="${labelSz}"
+            x="${cx.toFixed(1)}" y="${(cy - 2).toFixed(1)}">${dcn}</text>
+      <text class="gu-dong-cnt"   font-size="${Math.max(7, labelSz - 3)}"
+            x="${cx.toFixed(1)}" y="${(cy + labelSz + 2).toFixed(1)}">${cnt} 間</text>
+    `;
+  });
+
+  // Render restaurant dots inside this Gu (shows stars for must eat!)
+  const restsInGu = RESTAURANTS.filter(r => S.dongToGu[r.dongKR] === guName);
+  const guDotsHTML = restsInGu.map(r => {
+    const [rx, ry] = project(r.lng, r.lat, bounds, W, H, pad);
+    const col = catColor(r.category);
+    const isMust = isMustEat(r.id);
+    const shape = isMust
+      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 8.5, 3.8)}" />`
+      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="5.5" fill="${col}"/>`;
+      
+    return `
+      <g class="rest-dot${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}"
+         onclick="openModal('${r.id}')"
+         onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
+         onmouseleave="hideTip()">
+        ${shape}
+        <text class="dot-label" x="${rx.toFixed(1)}" y="${(ry-10).toFixed(1)}" font-size="8">${r.nameCN}</text>
+      </g>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="view gu-view">
+      <div class="district-header">
+        <button class="btn-back" onclick="renderHome()">← 首頁</button>
+        <div class="district-name-block">
+          <div class="dn-cn">${cn}</div>
+          <div class="dn-sub">${guName} &nbsp;·&nbsp; ${dongs.length} 個地區</div>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="gu-svg">
+          <path class="gu-bg-shape" d="${guPath}"/>
+          <g class="gu-dong-layer">${dongPaths}</g>
+          <g class="gu-label-layer">${dongLabels}</g>
+          <g id="gu-dots-layer">${guDotsHTML}</g>
+        </svg>
+      </div>
+      <div class="gu-hint">
+        點藍色區塊，就能看到那裡有哪些餐廳 👆
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// VIEW 3 — DONG DETAIL
+// Shows dong shape with restaurant dots
+// Back button → gu view (if came from gu); Home button always visible
+// ============================================================
+function gotoDong(dongKR, highlightId = null) {
+  S.view = 'dong';
+  S.dong = dongKR;
+
+  const app  = document.getElementById('app');
+  const feat = dongFeature(dongKR);
+  if (!feat) { renderHome(); return; }
+
+  const cn     = dongCN(dongKR);
+  const bounds = padBounds(getFeatureBounds(feat), 0.38);
+  const [W, H] = [Math.min(window.innerWidth * 0.9, 820), Math.min(window.innerHeight * 0.84, 680)];
+  const pad    = 38;
+
+  const rests = RESTAURANTS
+    .filter(r => r.dongKR === dongKR)
+    .sort((a, b) => haversine(HOTEL.lat, HOTEL.lng, a.lat, a.lng) - haversine(HOTEL.lat, HOTEL.lng, b.lat, b.lng));
+
+  const distPath = geomToD(feat.geometry, bounds, W, H, pad);
+
+  // Hotel marker
+  const [hx, hy] = project(HOTEL.lng, HOTEL.lat, bounds, W, H, pad);
+  const hotelDotHTML = (hx > 0 && hx < W && hy > 0 && hy < H) ? `
+    <g class="hotel-dot">
+      <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="8"/>
+      <text x="${hx.toFixed(1)}" y="${(hy-13).toFixed(1)}">飯店 ★</text>
+    </g>` : '';
+
+  const dotHTML = rests.map(r => {
+    const [rx, ry] = project(r.lng, r.lat, bounds, W, H, pad);
+    const col  = catColor(r.category);
+    const isHL = highlightId === r.id;
+    const isMust = isMustEat(r.id);
+    
+    const shape = isMust 
+      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 10, 4.5)}" />`
+      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="7" fill="${col}"/>`;
+
+    return `
+      <g class="rest-dot${isHL ? ' dot-hl' : ''}${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}"
+         onclick="openModal('${r.id}')"
+         onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
+         onmouseleave="hideTip()">
+        ${shape}
+        <text class="dot-label" x="${rx.toFixed(1)}" y="${(ry-12).toFixed(1)}">${r.nameCN}</text>
+      </g>`;
+  }).join('');
+
+  // Back button: go to gu view if we know which gu we came from
+  const backLabel = S.gu ? `← ${guCN(S.gu)}` : '← 首頁';
+  const backClick = S.gu ? `gotoGu('${safeAttr(S.gu)}')` : 'renderHome()';
+
+  app.innerHTML = `
+    <div class="view district-view">
+      <div class="district-header">
+        <button class="btn-back" onclick="${backClick}">${backLabel}</button>
+        <div class="district-name-block">
+          <div class="dn-cn">${cn}</div>
+          <div class="dn-sub">${feat.properties.name_eng} &nbsp;·&nbsp; ${rests.length} 間餐廳</div>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="dist-svg">
+          <path class="dist-bg-shape" d="${distPath}"/>
+          ${hotelDotHTML}
+          <g id="dots-layer">${dotHTML}</g>
+        </svg>
+      </div>
+      <div class="dong-footer">
+        <button class="btn-home-footer" onclick="renderHome()">🏠 回首頁</button>
+      </div>
+    </div>
+  `;
+
+  if (highlightId) setTimeout(() => blinkDot(highlightId), 200);
+}
+
+function blinkDot(restaurantId) {
+  const dotG = document.getElementById(`dot-${restaurantId}`);
+  if (!dotG) return;
+  const target = dotG.querySelector('.dot-circle') || dotG.querySelector('.dot-star');
+  if (!target) return;
+  const isStar = target.classList.contains('dot-star');
+  let count = 0;
+  function step() {
+    if (count >= 6) {
+      if (isStar) {
+        target.style.transform = 'scale(1)';
+      } else {
+        target.setAttribute('r', 7);
+      }
+      target.style.opacity = '1';
+      setTimeout(() => renderHome(), 400);
+      return;
+    }
+    const even = count % 2 === 0;
+    if (isStar) {
+      target.style.transform = even ? 'scale(1.7)' : 'scale(1)';
+    } else {
+      target.setAttribute('r', even ? 13 : 7);
+    }
+    target.style.opacity = even ? '0.25' : '1';
+    count++;
+    setTimeout(step, 350);
+  }
+  step();
+}
+
+// ============================================================
+// TOOLTIP
+// ============================================================
+function showTip(e, text) {
+  const t = document.getElementById('tooltip');
+  if (!t) return;
+  t.textContent = text;
+  t.style.left = e.clientX + 'px';
+  t.style.top  = (e.clientY - 36) + 'px';
+  t.classList.add('visible');
+}
+function hideTip() {
+  const t = document.getElementById('tooltip');
+  if (t) t.classList.remove('visible');
+}
+
+// ============================================================
+// MODAL & Card Rendering & BOOKMARKS (我必須吃到！)
+// Shows: rating, IG Reels, featured dish, address, walking distance
+// ============================================================
+
+function ratingColor(val) {
+  const v = parseFloat(val);
+  if (v >= 4.5) return '#3d9e5c';
+  if (v >= 4.0) return '#B8942A';
+  if (v >= 3.5) return '#C07030';
+  return '#B04040';
+}
+
+function walkingMinutes(r) {
+  const km = haversine(HOTEL.lat, HOTEL.lng, r.lat, r.lng);
+  const min = Math.round(km / 4.5 * 60);
+  return min <= 3 ? '步行 3 分鐘內' : `步行約 ${min} 分鐘`;
+}
+
+// ── Shared Card Template Generator ──
+function createRestaurantCardHTML(r, isFeedView = false) {
+  const col      = catColor(r.category);
+  const dispName = r.nameCN || r.nameKR || '---';
+
+  // ── Rating + IG Reels row ──
+  const rc = ratingColor(r.googleRating);
+  const ratingBlock = r.googleRating ? `
+    <div class="m-rating-row">
+      <span class="m-star">★</span>
+      <span class="m-rating-num" style="color:${rc}">${r.googleRating}</span>
+      ${r.googleReviews ? `<span class="m-review-cnt">${r.googleReviews}則評論</span>` : ''}
+      ${r.IGreels
+        ? `<a class="btn-ig" href="${r.IGreels}" target="_blank" rel="noopener">📱 IG Reels</a>`
+        : ''}
+    </div>` : '';
+
+  // ── Clickable category badge ──
+  const catBadge = `<span class="m-cat-tag m-cat-clickable"
+    style="background:${col}"
+    onclick="openCategoryList('${safeAttr(r.category)}')">${r.category}</span>`;
+
+  // ── Clickable hashtag badges ──
+  const hashBadges = r.hashtags.map(h =>
+    `<span class="m-hash m-hash-clickable"
+      onclick="openTagList('${safeAttr(h)}')">#${h}</span>`
+  ).join('');
+
+  // ── Info rows ──
+  const featDish = r.featuredDish && r.featuredDish.trim()
+    ? `<div class="m-info-row">
+        <span class="m-info-icon">🍽</span>
+        <div class="m-info-content">
+          <div class="m-info-label">推薦菜色</div>
+          <div class="m-info-val">${r.featuredDish}</div>
+        </div>
+      </div>` : '';
+
+  const locRow = `
+    <div class="m-info-row">
+      <span class="m-info-icon">🏙</span>
+      <div class="m-info-content">
+        <div class="m-info-label">地區</div>
+        <div class="m-info-val">${dongCN(r.dongKR)}<span class="m-kr-small"> ${r.dongKR}</span></div>
+      </div>
+    </div>`;
+
+  const addrRow = r.addressEN
+    ? `<div class="m-info-row">
+        <span class="m-info-icon">📍</span>
+        <div class="m-info-content">
+          <div class="m-info-label">地址</div>
+          <div class="m-info-val m-addr">${r.addressEN}</div>
+        </div>
+      </div>` : '';
+
+  const walkRow = `
+    <div class="m-info-row">
+      <span class="m-info-icon">🚶</span>
+      <div class="m-info-content">
+        <div class="m-info-label">距飯店距離</div>
+        <div class="m-info-val">${walkingMinutes(r)}</div>
+      </div>
+    </div>`;
+
+  // ── Action buttons ──
+  const naverBtn = r.naverUrl
+    ? `<a class="btn-ext-link btn-naver" href="${r.naverUrl}" target="_blank" rel="noopener">
+        <span>🗺</span> Naver 地圖</a>`
+    : `<a class="btn-ext-link btn-naver"
+        href="https://map.naver.com/v5/search/${encodeURIComponent(dispName)}"
+        target="_blank" rel="noopener">🔍 Naver 搜尋</a>`;
+
+  const googleBtn = r.googleUrl
+    ? `<a class="btn-ext-link" href="${r.googleUrl}" target="_blank" rel="noopener">
+        <span>🌐</span> Google Maps</a>`
+    : '';
+
+  // Must eat status & button
+  const isME = isMustEat(r.id);
+  const mustEatBtn = `
+    <button class="btn-must-eat-card-toggle${isME ? ' is-active' : ''}" onclick="toggleMustEat('${r.id}')">
+      ${isME ? '★ 已在清單' : '☆ 必須吃到！'}
+    </button>
+  `;
+
+  // Return to Map button
+  const mapReturnBtn = isFeedView
+    ? `<button class="btn-map-return" onclick="returnToMapFromFeed('${r.id}','${safeAttr(r.dongKR)}')">← 在地圖查看</button>`
+    : `<button class="btn-map-return" onclick="returnToMap('${r.id}','${safeAttr(r.dongKR)}')">← 回到地圖</button>`;
+
+  return `
+    <div class="restaurant-rich-card" data-id="${r.id}">
+      <div class="m-card-header">
+        <div class="m-card-header-titles">
+          <div class="m-name-cn">${dispName}</div>
+          <div class="m-name-kr">${r.nameKR || '<span class="m-placeholder">韓文名稱待補</span>'}</div>
+        </div>
+        ${mustEatBtn}
+      </div>
+
+      <div class="m-tags-row">
+        ${catBadge}
+        ${hashBadges}
+      </div>
+
+      ${ratingBlock}
+
+      <div class="m-divider"></div>
+
+      <div class="m-info-section">
+        ${featDish}
+        ${locRow}
+        ${walkRow}
+        ${addrRow}
+      </div>
+
+      <div class="m-divider"></div>
+
+      <div class="m-actions">
+        ${mapReturnBtn}
+        ${naverBtn}
+        ${googleBtn}
+      </div>
+    </div>
+  `;
+}
+
+function openModal(restId) {
+  const r = RESTAURANTS.find(x => x.id === restId);
+  if (!r) return;
+  S.fromModal = { restaurantId: restId };
+
+  document.getElementById('modal-body').innerHTML = createRestaurantCardHTML(r, false);
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  S.fromModal = null;
+}
+
+function returnToMap(restId, dongKR) {
+  closeModal();
+  gotoDong(dongKR, restId);
+}
+
+function returnToMapFromFeed(restId, dongKR) {
+  const guName = S.dongToGu[dongKR];
+  if (guName) S.gu = guName;
+  gotoDong(dongKR, restId);
+}
+
+// ── 「我必須吃到！」清單頁面 ──
+function renderMustEatListView() {
+  S.view = 'musteatlist';
+  S.openDong = null;
+  S.gu = null;
+
+  const app = document.getElementById('app');
+  const mustEatRests = RESTAURANTS.filter(r => isMustEat(r.id));
+
+  const cardsHTML = mustEatRests.map(r => createRestaurantCardHTML(r, true)).join('');
+
+  const emptyHTML = `
+    <div class="list-empty">
+      <div style="font-size: 38px; margin-bottom: 12px;">🐽🍴</div>
+      <div>目前還沒有加入任何餐廳唷！</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">點開地圖餐廳的詳細資訊，點選「☆ 必須吃到！」即可加入</div>
+    </div>
+  `;
+
+  const headerHTML = `
+    <div class="must-eat-header">
+      <button class="btn-back" onclick="renderHome()">← 首頁</button>
+      <span class="must-eat-header-title">🐽 我必須吃到！</span>
+      <span class="must-eat-header-sub">${mustEatRests.length} 間</span>
+      ${mustEatRests.length > 0 
+        ? `<button class="btn-share-list" onclick="shareMustEatList()">🔗 分享清單</button>`
+        : ''
+      }
+    </div>
+  `;
+
+  app.innerHTML = `
+    <div class="view must-eat-view">
+      ${headerHTML}
+      <div class="must-eat-body">
+        ${mustEatRests.length === 0 ? emptyHTML : `<div class="must-eat-cards-feed">${cardsHTML}</div>`}
+      </div>
+    </div>
+  `;
+}
+
+// ── 旅伴分享網址產生 ──
+function shareMustEatList() {
+  if (mustEatIds.length === 0) {
+    showToast('目前清單是空的，先加入幾間餐廳吧！');
+    return;
+  }
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${baseUrl}#share=${mustEatIds.join(',')}`;
+  
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    showToast('已複製分享網址！傳給旅伴即可合併清單 🐽🍴');
+  }).catch(err => {
+    console.error('Copy failed:', err);
+    showToast('複製失敗，請手動複製網址');
+  });
+}
+
+// ── 旅伴分享網址監聽與合併 ──
+function checkAndImportSharedList() {
+  const hash = window.location.hash;
+  if (hash.startsWith('#share=')) {
+    const idsStr = hash.substring(7);
+    if (idsStr) {
+      const ids = idsStr.split(',').filter(id => {
+        return RESTAURANTS.some(r => r.id === id);
+      });
+      if (ids.length > 0) {
+        loadMustEat();
+        let addedCount = 0;
+        ids.forEach(id => {
+          if (!mustEatIds.includes(id)) {
+            mustEatIds.push(id);
+            addedCount++;
+          }
+        });
+        if (addedCount > 0) {
+          saveMustEat();
+          showToast(`已成功合併旅伴的清單！新增了 ${addedCount} 間必吃餐廳 🐽🍴`);
+        } else {
+          showToast('您已擁有旅伴分享的所有必吃餐廳！👌');
+        }
+        setTimeout(() => {
+          renderMustEatListView();
+        }, 300);
+      }
+    }
+    history.replaceState(null, document.title, window.location.pathname + window.location.search);
+  }
+}
+
+function openCategoryList(catKey) {
+  closeModal();
+  renderDongListView(catKey, null);
+}
+function openTagList(tag) {
+  closeModal();
+  renderDongListView(null, tag);
+}
+
+
+// ============================================================
+// VIEW 4 — LIST VIEW (with optional category / tag filter)
+// ============================================================
+function renderDongListView(filterCat = null, filterTag = null) {
+  S.view     = 'donglist';
+  S.openDong = null;
+  S.gu       = null;   // reset gu so back-from-dong goes to home
+
+  const app = document.getElementById('app');
+
+  // Apply filter
+  let filtered = RESTAURANTS;
+  if (filterCat) filtered = filtered.filter(r => r.category === filterCat);
+  if (filterTag) filtered = filtered.filter(r => r.hashtags.includes(filterTag));
+
+  // Dongs with matching restaurants, sorted by avg distance from hotel
+  const dongKeys = [...new Set(filtered.map(r => r.dongKR).filter(Boolean))];
+  dongKeys.sort((a, b) => {
+    const avg = dk => {
+      const rs = filtered.filter(r => r.dongKR === dk);
+      return rs.reduce((s, r) => s + haversine(HOTEL.lat, HOTEL.lng, r.lat, r.lng), 0) / rs.length;
+    };
+    return avg(a) - avg(b);
+  });
+
+  // Filter indicator badges
+  let filterBadge = '';
+  if (filterCat) filterBadge += `
+    <span class="cat-filter-active" style="background:${catColor(filterCat)}"
+          onclick="renderDongListView()" title="清除篩選">
+      ${filterCat} ✕
+    </span>`;
+  if (filterTag) filterBadge += `
+    <span class="cat-filter-active cat-filter-tag"
+          onclick="renderDongListView()" title="清除篩選">
+      #${filterTag} ✕
+    </span>`;
+
+  const sectionsHTML = dongKeys.map(dongKR => {
+    const rests = filtered.filter(r => r.dongKR === dongKR)
+      .sort((a, b) => haversine(HOTEL.lat, HOTEL.lng, a.lat, a.lng) - haversine(HOTEL.lat, HOTEL.lng, b.lat, b.lng));
+    const cn = dongCN(dongKR);
+
+    const cardsHTML = rests.map(r => {
+      const col = catColor(r.category);
+      const hashBadges = r.hashtags.map(h => `<span class="m-hash">#${h}</span>`).join('');
+      return `
+        <div class="rest-card" onclick="openModal('${r.id}')">
+          <span class="rest-card-dot" style="background:${col}"></span>
+          <div class="rest-card-info">
+            <div class="rest-card-cn">${r.nameCN}</div>
+            <div class="rest-card-kr">${r.category}</div>
+            ${r.hashtags.length ? `<div class="rest-card-tags">${hashBadges}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="cat-section">
+        <div class="cat-section-hd" onclick="toggleDongSection('${safeAttr(dongKR)}')">
+          <span class="cat-dot-badge" style="background:#C8A84B"></span>
+          <div class="cat-section-name-block">
+            <span class="cat-section-name">${cn}</span>
+            <span class="cat-section-sub">${dongKR}</span>
+          </div>
+          <span class="cat-section-cnt">${rests.length} 間</span>
+          <span class="cat-arrow" id="arr-${safeAttr(dongKR)}">›</span>
+        </div>
+        <div class="inline-rest-list" id="list-${safeAttr(dongKR)}">${cardsHTML}</div>
+      </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="view cat-view">
+      <div class="cat-header">
+        <button class="btn-back" onclick="renderHome()">← 首頁</button>
+        <span class="cat-header-title">${filterCat || filterTag ? '篩選結果' : '全部清單'}</span>
+        ${filterBadge}
+        <span class="cat-header-sub">${filtered.length} 間</span>
+      </div>
+      ${dongKeys.length === 0
+        ? `<div class="list-empty">沒有找到符合條件的餐廳</div>`
+        : `<div class="cat-body">${sectionsHTML}</div>`}
+    </div>
+  `;
+}
+
+function toggleDongSection(dongKR) {
+  const listEl = document.getElementById(`list-${dongKR}`);
+  const arr    = document.getElementById(`arr-${dongKR}`);
+  if (!listEl) return;
+  const isOpen = listEl.classList.toggle('open');
+  if (arr) arr.classList.toggle('open', isOpen);
+}
+
+// ============================================================
+// Init
+// ============================================================
+async function init() {
+  initParticles();
+  loadMustEat();
+  await loadGeo();
+  checkAndImportSharedList();
+  renderHome();
+
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+}
+
+document.addEventListener('DOMContentLoaded', init);

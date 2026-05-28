@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>首爾踩點地圖 Seoul Eats</title>
+  <meta name="description" content="首爾旅行餐廳踩點地圖，依行政區與分類瀏覽，方便旅伴共享。">
+  <meta property="og:title" content="首爾踩點地圖">
+  <meta property="og:description" content="整理首爾旅行餐廳清單，依行政區與分類瀏覽。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="particles-canvas"></canvas>
+  <div id="app">
+    <div class="loading-screen" id="loading">
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p>載入地圖中</p>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div id="modal-box" class="modal-box">
+      <button id="modal-close" class="modal-close" aria-label="關閉">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Tooltip -->
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
