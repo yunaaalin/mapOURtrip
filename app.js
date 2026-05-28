@@ -1630,8 +1630,7 @@ function renderTheaterListView() {
       <div class="theater-card-container">
         <div class="theater-emoji">🎭✨</div>
         <div class="theater-text">
-          網站全力建置中，本功能會在蕭小姐24歲後才開始開發。<br>
-          請您稍等<br>
+          網站全力建置中，本功能會在蕭小姐24歲後才開始開發。請您稍等<br><br>
           好期待我們的首爾行哇(⌾ˉ ꒳ ˉ⌾)
         </div>
         <button class="btn-back" style="margin-top: 24px; padding: 10px 24px; font-size: 13px;" onclick="renderHome()">← 回到首頁</button>
