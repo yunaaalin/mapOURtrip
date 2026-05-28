@@ -7,8 +7,8 @@
 // ============================================================
 // Constants
 // ============================================================
-const GEOJSON_URL      = 'https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_municipalities_geo_simple.json';
-const DONG_GEOJSON_URL = 'https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_submunicipalities_geo_simple.json';
+const GEOJSON_URL      = './seoul_municipalities.json';
+const DONG_GEOJSON_URL = './seoul_submunicipalities.json';
 
 const SEOUL_BOUNDS = { minLng: 126.764, maxLng: 127.183, minLat: 37.428, maxLat: 37.701 };
 
@@ -1409,7 +1409,7 @@ function toggleDongSection(dongKR) {
 // Init
 // ============================================================
 async function init() {
-  initParticles();
+  // initParticles(); // 暫停星芒
   loadMustEat();
   await loadGeo();
   checkAndImportSharedList();
