@@ -1443,15 +1443,6 @@ function createCardHTML(item, type, isFeedView = false) {
         </div>
       </div>` : '';
 
-  const walkRow = `
-    <div class="m-info-row">
-      <span class="m-info-icon">🚶</span>
-      <div class="m-info-content">
-        <div class="m-info-label">距飯店距離</div>
-        <div class="m-info-val">${walkingMinutes(item)}</div>
-      </div>
-    </div>`;
-
   // ── Action buttons ──
   const naverBtn = item.naverUrl
     ? `<a class="btn-ext-link btn-naver" href="${item.naverUrl}" target="_blank" rel="noopener">
@@ -1517,7 +1508,6 @@ function createCardHTML(item, type, isFeedView = false) {
       <div class="m-info-section">
         ${featDish}
         ${locRow}
-        ${walkRow}
         ${addrRow}
       </div>
 

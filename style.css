@@ -1660,18 +1660,18 @@ body {
    ============================================================ */
 .btn-schedule-main {
   border-radius: 12px;
-  background: #9C7F85;
+  background: #B07B6C;
   color: #FFFFFF;
-  border: 1.5px solid #F3ECED;
+  border: 1.5px solid #F5EAE7;
   animation: schedBorderPulse 3s ease-in-out infinite;
 }
 @keyframes schedBorderPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(156, 127, 133, 0.2); }
-  50% { box-shadow: 0 0 16px 2px rgba(156, 127, 133, 0.5); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(176, 123, 108, 0.2); }
+  50% { box-shadow: 0 0 16px 2px rgba(176, 123, 108, 0.5); }
 }
 .btn-schedule-main:hover {
-  background: #84676C;
-  border-color: #F3ECED;
+  background: #9A6455;
+  border-color: #F5EAE7;
   transform: translateY(-2px);
 }
 
