@@ -265,10 +265,11 @@ function setupPanZoom(svgId) {
     const hotelCircle = zoomGroup.querySelectorAll('.hotel-dot circle');
     const hotelText   = zoomGroup.querySelectorAll('.hotel-dot text');
 
-    const shrinkFactor = Math.sqrt(scale);
+    const baseRadius = isGu ? 6.0 : 9.0;
+    const shrinkFactor = scale;
 
     dotCircles.forEach(c => {
-      c.setAttribute('r', (5.5 / shrinkFactor).toFixed(1));
+      c.setAttribute('r', (baseRadius / shrinkFactor).toFixed(1));
       c.style.strokeWidth = (1.5 / shrinkFactor).toFixed(1);
     });
 
@@ -445,7 +446,7 @@ function resolveLabelCollisions(svgId, scale) {
     return bIsMust - aIsMust;
   });
   
-  const shrinkFactor = Math.sqrt(scale);
+  const shrinkFactor = scale;
   const isGu = (svgId === 'gu-svg');
   const baseFs = isGu ? 9.2 : 11.5;
   const fontSize = baseFs / shrinkFactor;
@@ -1135,13 +1136,13 @@ function gotoGu(guName) {
 
             const attrChips = dongAttrs.map(a => {
               const col = '#E05E7A';
-              return `<button class="map-table-chip" onclick="openModal('${a.id}')">
+              return `<button class="map-table-chip map-table-chip-attraction" onclick="openModal('${a.id}')">
                 <span class="mtc-dot" style="background:${col}"></span>${a.nameCN}</button>`;
             }).join('');
 
             const thChips = dongThs.map(t => {
               const col = '#8A73B6';
-              return `<button class="map-table-chip" onclick="openModal('${t.id}')">
+              return `<button class="map-table-chip map-table-chip-theater" onclick="openModal('${t.id}')">
                 <span class="mtc-dot" style="background:${col}"></span>${t.nameCN}</button>`;
             }).join('');
 
@@ -1274,7 +1275,7 @@ function gotoDong(dongKR, highlightId = null) {
               const catAttrs = attrs.filter(a => a.categories.includes(cat));
               const col = '#E05E7A';
               const chipsHTML = catAttrs.map(a =>
-                `<button class="map-table-chip" onclick="openModal('${a.id}')">
+                `<button class="map-table-chip map-table-chip-attraction" onclick="openModal('${a.id}')">
                   <span class="mtc-dot" style="background:${col}"></span>${a.nameCN}</button>`
               ).join('');
               return `<div class="map-table-group">
@@ -1289,7 +1290,7 @@ function gotoDong(dongKR, highlightId = null) {
               const catThs = ths.filter(t => t.categories.includes(cat));
               const col = '#8A73B6';
               const chipsHTML = catThs.map(t =>
-                `<button class="map-table-chip" onclick="openModal('${t.id}')">
+                `<button class="map-table-chip map-table-chip-theater" onclick="openModal('${t.id}')">
                   <span class="mtc-dot" style="background:${col}"></span>${t.nameCN}</button>`
               ).join('');
               return `<div class="map-table-group">
