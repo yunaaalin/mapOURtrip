@@ -1463,4 +1463,22 @@ const ATTRACTIONS = [
   }
 ];
 
-const THEATERS = [];
+const THEATERS = [
+  {
+    "id": "t_1",
+    "district": "songpa",
+    "nameCN": "Charlotte Theater",
+    "nameKR": "샤롯데씨어터",
+    "lat": 37.510741714193415,
+    "lng": 127.09974210768064,
+    "categories": ["已購票"],
+    "hashtags": [],
+    "descText": "Frozen 겨울왕국",
+    "theaterUrl": "https://www.kontenx.net/shows/2600093",
+    "addressEN": "Seoul, Songpa District, 올림픽로 240",
+    "googleUrl": "https://maps.app.goo.gl/jm9jMAEXHf1Woa3P8",
+    "naverUrl": "https://naver.me/xique5B3",
+    "dongKR": "잠실3동",
+    "dongEN": "Jamsil 3(sam)-dong"
+  }
+];

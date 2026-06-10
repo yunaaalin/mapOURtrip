@@ -43,6 +43,7 @@ const DONG_KR_TO_CN = {
   '연희동':          '延禧洞',
   '한강로동':        '漢江路洞',
   '황학동':          '黃鶴洞',
+  '잠실3동':         '蠶室洞',
 };
 
 const GU_KR_TO_CN = {
@@ -51,7 +52,7 @@ const GU_KR_TO_CN = {
   '동대문구': '東大門區', '서대문구': '西大門區', '서초구': '瑞草區',
   '영등포구': '永登浦區', '은평구': '恩平區', '노원구': '蘆原區',
   '성북구': '城北區', '광진구': '廣津區', '강서구': '江西區',
-  '강북구': '江北區',
+  '강북구': '江北區', '송파구': '松坡區',
 };
 
 // ============================================================
@@ -265,7 +266,7 @@ function setupPanZoom(svgId) {
     const hotelCircle = zoomGroup.querySelectorAll('.hotel-dot circle');
     const hotelText   = zoomGroup.querySelectorAll('.hotel-dot text');
 
-    const baseRadius = isGu ? 6.0 : 9.0;
+    const baseRadius = isGu ? 5.0 : 7.5;
     const shrinkFactor = scale;
 
     dotCircles.forEach(c => {
@@ -1085,8 +1086,8 @@ function gotoGu(guName) {
     else col = catColor(item.category);
 
     const shape = isMust
-      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 8.5, 3.8)}" />`
-      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="5.5" fill="${col}"/>`;
+      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 7.5, 3.2)}" />`
+      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="5.0" fill="${col}"/>`;
       
     return `
       <g class="rest-dot${isMust ? ' dot-is-must' : ''}" id="dot-${item.id}" style="pointer-events: none;">
@@ -1211,8 +1212,8 @@ function gotoDong(dongKR, highlightId = null) {
     else col = catColor(item.category);
     
     const shape = isMust 
-      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 12, 5.5)}" />`
-      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="9" fill="${col}"/>`;
+      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 10, 4.5)}" />`
+      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="7.5" fill="${col}"/>`;
 
     return `
       <g class="rest-dot${isHL ? ' dot-hl' : ''}${isMust ? ' dot-is-must' : ''}" id="dot-${item.id}"
