@@ -1408,3 +1408,59 @@ const RESTAURANTS = [
     "googleUrl": "https://maps.app.goo.gl/qEovCWp8GQdQgLGE6"
   }
 ];
+
+const ATTRACTIONS = [
+  {
+    "id": "a_1",
+    "district": "mapo",
+    "nameCN": "Eternalog",
+    "nameKR": "이터널로그 홍대",
+    "lat": 37.556241321378,
+    "lng": 126.92792537116433,
+    "categories": ["拍貼機"],
+    "hashtags": [],
+    "introText": "歐洲進口墨水沖印機台✨",
+    "addressEN": "Seoul, Mapo-gu, Wausan-ro 29-gil, 48-24 1층 103호",
+    "googleUrl": "https://maps.app.goo.gl/QAsJaQQDY6DNoSoy8",
+    "naverUrl": "https://naver.me/G4WoQkm6",
+    "IGreels": "https://www.instagram.com/reels/DZR-ObkimiU/",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong"
+  },
+  {
+    "id": "a_2",
+    "district": "mapo",
+    "nameCN": "Little Riddle Store",
+    "nameKR": "리틀리들",
+    "lat": 37.556822115833164,
+    "lng": 126.92871384232868,
+    "categories": ["選物店"],
+    "hashtags": [],
+    "introText": "美式復古風，很多可愛小物、有古著",
+    "addressEN": "서울 Mapo-gu, Wausan-ro 37-gil, 42 1층",
+    "googleUrl": "https://maps.app.goo.gl/JHYbauKFvvhX4pu99",
+    "naverUrl": "https://naver.me/57VZUZHx",
+    "IGreels": "https://www.instagram.com/reels/DZR-ObkimiU/",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong"
+  },
+  {
+    "id": "a_3",
+    "district": "mapo",
+    "nameCN": "SUBACO",
+    "nameKR": "수바코 홍대점",
+    "lat": 37.556843015826026,
+    "lng": 126.92859612883565,
+    "categories": ["選物店", "拍貼機"],
+    "hashtags": [],
+    "introText": "日式復古風，有散裝扭蛋、吊飾、姓名貼、日式拍貼",
+    "addressEN": "46 Wausan-ro 37-gil, Donggyo-dong, Mapo-gu, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/f7AW38AHJQncFyou9",
+    "naverUrl": "https://naver.me/5fIpan7p",
+    "IGreels": "https://www.instagram.com/reels/DZR-ObkimiU/",
+    "dongKR": "서교동",
+    "dongEN": "Seogyo-dong"
+  }
+];
+
+const THEATERS = [];

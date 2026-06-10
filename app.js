@@ -152,10 +152,9 @@ function toggleMustEat(id) {
     showToast('已移出「我必須吃到！」清單');
   }
   saveMustEat();
-  
-  if (S.fromModal && S.fromModal.restaurantId === id) {
-    openModal(id);
-  }
+    if (S.fromModal && S.fromModal.itemId === id) {
+      openModal(id);
+    }
   
   if (S.view !== 'musteatlist') refreshCurrentView();
 }
@@ -766,7 +765,8 @@ function pointInFeatureCheck(lng, lat, feat) {
 }
 
 function buildDongGuMapping() {
-  const usedDongs = [...new Set(RESTAURANTS.map(r => r.dongKR).filter(Boolean))];
+  const allItems = [...RESTAURANTS, ...ATTRACTIONS, ...THEATERS];
+  const usedDongs = [...new Set(allItems.map(r => r.dongKR).filter(Boolean))];
   S.dongToGu  = {};
   S.guToDongs = {};
   usedDongs.forEach(dongKR => {
@@ -1064,18 +1064,31 @@ function gotoGu(guName) {
       </g>`;
   });
 
-  // Render restaurant dots inside this Gu (shows stars for must eat!)
-  const restsInGu = RESTAURANTS.filter(r => S.dongToGu[r.dongKR] === guName);
-  const guDotsHTML = restsInGu.map(r => {
-    const [rx, ry] = project(r.lng, r.lat, bounds, W, H, pad);
-    const col = catColor(r.category);
-    const isMust = isMustEat(r.id);
+  // Render restaurant, attraction, and theater dots inside this Gu (shows stars for must eat!)
+  const guRests = RESTAURANTS.filter(r => S.dongToGu[r.dongKR] === guName);
+  const guAttrs = ATTRACTIONS.filter(a => S.dongToGu[a.dongKR] === guName);
+  const guThs = THEATERS.filter(t => S.dongToGu[t.dongKR] === guName);
+  
+  const guItems = [
+    ...guRests.map(r => ({ ...r, type: 'restaurant' })),
+    ...guAttrs.map(a => ({ ...a, type: 'attraction' })),
+    ...guThs.map(t => ({ ...t, type: 'theater' }))
+  ];
+
+  const guDotsHTML = guItems.map(item => {
+    const [rx, ry] = project(item.lng, item.lat, bounds, W, H, pad);
+    const isMust = item.type === 'restaurant' && isMustEat(item.id);
+    let col = '#C8A84B';
+    if (item.type === 'attraction') col = '#E05E7A';
+    else if (item.type === 'theater') col = '#8A73B6';
+    else col = catColor(item.category);
+
     const shape = isMust
       ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 8.5, 3.8)}" />`
       : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="5.5" fill="${col}"/>`;
       
     return `
-      <g class="rest-dot${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}" style="pointer-events: none;">
+      <g class="rest-dot${isMust ? ' dot-is-must' : ''}" id="dot-${item.id}" style="pointer-events: none;">
         ${shape}
       </g>`;
   }).join('');
@@ -1109,19 +1122,35 @@ function gotoGu(guName) {
         <div class="map-table-section">
           ${dongs.map(dongKR => {
             const dongRests = RESTAURANTS.filter(r => r.dongKR === dongKR);
-            if (dongRests.length === 0) return '';
+            const dongAttrs = ATTRACTIONS.filter(a => a.dongKR === dongKR);
+            const dongThs = THEATERS.filter(t => t.dongKR === dongKR);
+            if (dongRests.length === 0 && dongAttrs.length === 0 && dongThs.length === 0) return '';
             const dcn = dongCN(dongKR);
-            const chipsHTML = dongRests.map(r => {
+
+            const restChips = dongRests.map(r => {
               const col = catColor(r.category);
               return `<button class="map-table-chip" onclick="openModal('${r.id}')">
                 <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`;
             }).join('');
+
+            const attrChips = dongAttrs.map(a => {
+              const col = '#E05E7A';
+              return `<button class="map-table-chip" onclick="openModal('${a.id}')">
+                <span class="mtc-dot" style="background:${col}"></span>${a.nameCN}</button>`;
+            }).join('');
+
+            const thChips = dongThs.map(t => {
+              const col = '#8A73B6';
+              return `<button class="map-table-chip" onclick="openModal('${t.id}')">
+                <span class="mtc-dot" style="background:${col}"></span>${t.nameCN}</button>`;
+            }).join('');
+
             return `<div class="map-table-group">
               <div class="map-table-dong-header">
                 <span>${dcn}</span>
                 <button class="map-table-dong-goto" onclick="gotoDong('${safeAttr(dongKR)}')">看地圖 →</button>
               </div>
-              <div class="map-table-items">${chipsHTML}</div>
+              <div class="map-table-items">${restChips}${attrChips}${thChips}</div>
             </div>`;
           }).join('')}
         </div>
@@ -1151,9 +1180,15 @@ function gotoDong(dongKR, highlightId = null) {
   const pad    = 38;
   const [W, H] = getCorrectedSize(bounds, maxW, maxH, pad);
 
-  const rests = RESTAURANTS
-    .filter(r => r.dongKR === dongKR)
-    .sort((a, b) => haversine(HOTEL.lat, HOTEL.lng, a.lat, a.lng) - haversine(HOTEL.lat, HOTEL.lng, b.lat, b.lng));
+  const rests = RESTAURANTS.filter(r => r.dongKR === dongKR);
+  const attrs = ATTRACTIONS.filter(a => a.dongKR === dongKR);
+  const ths = THEATERS.filter(t => t.dongKR === dongKR);
+
+  const dongItems = [
+    ...rests.map(r => ({ ...r, type: 'restaurant' })),
+    ...attrs.map(a => ({ ...a, type: 'attraction' })),
+    ...ths.map(t => ({ ...t, type: 'theater' }))
+  ].sort((a, b) => haversine(HOTEL.lat, HOTEL.lng, a.lat, a.lng) - haversine(HOTEL.lat, HOTEL.lng, b.lat, b.lng));
 
   const distPath = geomToD(feat.geometry, bounds, W, H, pad);
 
@@ -1165,20 +1200,23 @@ function gotoDong(dongKR, highlightId = null) {
       <text x="${hx.toFixed(1)}" y="${(hy-13).toFixed(1)}">飯店</text>
     </g>` : '';
 
-  const dotHTML = rests.map(r => {
-    const [rx, ry] = project(r.lng, r.lat, bounds, W, H, pad);
-    const col  = catColor(r.category);
-    const isHL = highlightId === r.id;
-    const isMust = isMustEat(r.id);
+  const dotHTML = dongItems.map(item => {
+    const [rx, ry] = project(item.lng, item.lat, bounds, W, H, pad);
+    const isHL = highlightId === item.id;
+    const isMust = item.type === 'restaurant' && isMustEat(item.id);
+    let col = '#C8A84B';
+    if (item.type === 'attraction') col = '#E05E7A';
+    else if (item.type === 'theater') col = '#8A73B6';
+    else col = catColor(item.category);
     
     const shape = isMust 
       ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 12, 5.5)}" />`
       : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="9" fill="${col}"/>`;
 
     return `
-      <g class="rest-dot${isHL ? ' dot-hl' : ''}${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}"
-         onclick="openModal('${r.id}')"
-         onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
+      <g class="rest-dot${isHL ? ' dot-hl' : ''}${isMust ? ' dot-is-must' : ''}" id="dot-${item.id}"
+         onclick="openModal('${item.id}')"
+         onmouseenter="showTip(event,'${safeAttr(item.nameCN)}')"
          onmouseleave="hideTip()">
         ${shape}
       </g>`;
@@ -1215,8 +1253,9 @@ function gotoDong(dongKR, highlightId = null) {
         </div>
         <div class="map-table-section">
           ${(() => {
-            const cats = [...new Set(rests.map(r => r.category).filter(Boolean))];
-            return cats.map(cat => {
+            // Restaurants
+            const restCats = [...new Set(rests.map(r => r.category).filter(Boolean))];
+            const restHTML = restCats.map(cat => {
               const catRests = rests.filter(r => r.category === cat);
               const col = catColor(cat);
               const chipsHTML = catRests.map(r =>
@@ -1228,6 +1267,38 @@ function gotoDong(dongKR, highlightId = null) {
                 <div class="map-table-items">${chipsHTML}</div>
               </div>`;
             }).join('');
+
+            // Attractions
+            const attrCats = [...new Set(attrs.flatMap(a => a.categories).filter(Boolean))];
+            const attrHTML = attrCats.map(cat => {
+              const catAttrs = attrs.filter(a => a.categories.includes(cat));
+              const col = '#E05E7A';
+              const chipsHTML = catAttrs.map(a =>
+                `<button class="map-table-chip" onclick="openModal('${a.id}')">
+                  <span class="mtc-dot" style="background:${col}"></span>${a.nameCN}</button>`
+              ).join('');
+              return `<div class="map-table-group">
+                <div class="map-table-cat-header">景點 - ${cat}</div>
+                <div class="map-table-items">${chipsHTML}</div>
+              </div>`;
+            }).join('');
+
+            // Theaters
+            const thCats = [...new Set(ths.flatMap(t => t.categories).filter(Boolean))];
+            const thHTML = thCats.map(cat => {
+              const catThs = ths.filter(t => t.categories.includes(cat));
+              const col = '#8A73B6';
+              const chipsHTML = catThs.map(t =>
+                `<button class="map-table-chip" onclick="openModal('${t.id}')">
+                  <span class="mtc-dot" style="background:${col}"></span>${t.nameCN}</button>`
+              ).join('');
+              return `<div class="map-table-group">
+                <div class="map-table-cat-header">劇場 - ${cat}</div>
+                <div class="map-table-items">${chipsHTML}</div>
+              </div>`;
+            }).join('');
+
+            return restHTML + attrHTML + thHTML;
           })()}
         </div>
       </div>
@@ -1290,40 +1361,64 @@ function walkingMinutes(r) {
 }
 
 // ── Shared Card Template Generator ──
-function createRestaurantCardHTML(r, isFeedView = false) {
-  const col      = catColor(r.category);
-  const dispName = r.nameCN || r.nameKR || '---';
+// ── Shared Card Template Generator ──
+function createCardHTML(item, type, isFeedView = false) {
+  const col      = type === 'attraction' ? '#E05E7A' : (type === 'theater' ? '#8A73B6' : catColor(item.category));
+  const dispName = item.nameCN || item.nameKR || '---';
 
   // ── Rating + IG Reels row ──
-  const rc = ratingColor(r.googleRating);
-  const ratingBlock = r.googleRating ? `
-    <div class="m-rating-row">
-      <span class="m-star">★</span>
-      <span class="m-rating-num" style="color:${rc}">${r.googleRating}</span>
-      ${r.googleReviews ? `<span class="m-review-cnt">${r.googleReviews}則評論</span>` : ''}
-      ${r.IGreels
-        ? `<a class="btn-ig" href="${r.IGreels}" target="_blank" rel="noopener">📱 IG Reels</a>`
-        : ''}
-    </div>` : '';
+  let ratingBlock = '';
+  if (type === 'restaurant') {
+    const rc = ratingColor(item.googleRating);
+    ratingBlock = item.googleRating ? `
+      <div class="m-rating-row">
+        <span class="m-star">★</span>
+        <span class="m-rating-num" style="color:${rc}">${item.googleRating}</span>
+        ${item.googleReviews ? `<span class="m-review-cnt">${item.googleReviews}則評論</span>` : ''}
+        ${item.IGreels
+          ? `<a class="btn-ig" href="${item.IGreels}" target="_blank" rel="noopener">📱 IG Reels</a>`
+          : ''}
+      </div>` : '';
+  } else if (type === 'attraction') {
+    ratingBlock = item.introText ? `
+      <div class="m-attraction-intro">
+        ✨ ${item.introText}
+      </div>` : '';
+  } else if (type === 'theater') {
+    ratingBlock = item.descText ? `
+      <div class="m-theater-desc-row">
+        <a class="m-theater-link" href="${item.theaterUrl || '#'}" target="_blank" rel="noopener">
+          🎭 ${item.descText} ↗
+        </a>
+      </div>` : '';
+  }
 
   // ── Clickable category badge ──
-  const catBadge = `<span class="m-cat-tag m-cat-clickable"
-    style="background:${col}"
-    onclick="openCategoryList('${safeAttr(r.category)}')">${r.category}</span>`;
+  let catBadge = '';
+  if (type === 'restaurant') {
+    catBadge = `<span class="m-cat-tag m-cat-clickable" style="background:${col}" onclick="openCategoryList('${safeAttr(item.category)}')">${item.category}</span>`;
+  } else if (type === 'attraction') {
+    catBadge = (item.categories || []).map(c => 
+      `<span class="m-cat-tag m-cat-clickable" style="background:${col}" onclick="openAttractionCategoryList('${safeAttr(c)}')">${c}</span>`
+    ).join(' ');
+  } else if (type === 'theater') {
+    catBadge = (item.categories || []).map(c => 
+      `<span class="m-cat-tag m-cat-clickable" style="background:${col}" onclick="openTheaterCategoryList('${safeAttr(c)}')">${c}</span>`
+    ).join(' ');
+  }
 
   // ── Clickable hashtag badges ──
-  const hashBadges = r.hashtags.map(h =>
-    `<span class="m-hash m-hash-clickable"
-      onclick="openTagList('${safeAttr(h)}')">#${h}</span>`
-  ).join('');
+  const hashBadges = type === 'restaurant' ? (item.hashtags || []).map(h =>
+    `<span class="m-hash m-hash-clickable" onclick="openTagList('${safeAttr(h)}')">#${h}</span>`
+  ).join('') : '';
 
   // ── Info rows ──
-  const featDish = r.featuredDish && r.featuredDish.trim()
+  const featDish = (type === 'restaurant' && item.featuredDish && item.featuredDish.trim())
     ? `<div class="m-info-row">
         <span class="m-info-icon">🍽</span>
         <div class="m-info-content">
           <div class="m-info-label">推薦菜色</div>
-          <div class="m-info-val">${r.featuredDish}</div>
+          <div class="m-info-val">${item.featuredDish}</div>
         </div>
       </div>` : '';
 
@@ -1332,16 +1427,16 @@ function createRestaurantCardHTML(r, isFeedView = false) {
       <span class="m-info-icon">🏙</span>
       <div class="m-info-content">
         <div class="m-info-label">地區</div>
-        <div class="m-info-val">${dongCN(r.dongKR)}<span class="m-kr-small"> ${r.dongKR}</span></div>
+        <div class="m-info-val">${dongCN(item.dongKR)}<span class="m-kr-small"> ${item.dongKR}</span></div>
       </div>
     </div>`;
 
-  const addrRow = r.addressEN
+  const addrRow = item.addressEN
     ? `<div class="m-info-row">
         <span class="m-info-icon">📍</span>
         <div class="m-info-content">
           <div class="m-info-label">地址</div>
-          <div class="m-info-val m-addr">${r.addressEN}</div>
+          <div class="m-info-val m-addr">${item.addressEN}</div>
         </div>
       </div>` : '';
 
@@ -1350,55 +1445,60 @@ function createRestaurantCardHTML(r, isFeedView = false) {
       <span class="m-info-icon">🚶</span>
       <div class="m-info-content">
         <div class="m-info-label">距飯店距離</div>
-        <div class="m-info-val">${walkingMinutes(r)}</div>
+        <div class="m-info-val">${walkingMinutes(item)}</div>
       </div>
     </div>`;
 
   // ── Action buttons ──
-  const naverBtn = r.naverUrl
-    ? `<a class="btn-ext-link btn-naver" href="${r.naverUrl}" target="_blank" rel="noopener">
+  const naverBtn = item.naverUrl
+    ? `<a class="btn-ext-link btn-naver" href="${item.naverUrl}" target="_blank" rel="noopener">
         <span>🗺</span> Naver 地圖</a>`
     : `<a class="btn-ext-link btn-naver"
         href="https://map.naver.com/v5/search/${encodeURIComponent(dispName)}"
         target="_blank" rel="noopener">🔍 Naver 搜尋</a>`;
 
-  const googleBtn = r.googleUrl
-    ? `<a class="btn-ext-link" href="${r.googleUrl}" target="_blank" rel="noopener">
+  const googleBtn = item.googleUrl
+    ? `<a class="btn-ext-link" href="${item.googleUrl}" target="_blank" rel="noopener">
         <span>🌐</span> Google Maps</a>`
     : '';
 
   // Must eat status & button
-  const isME = isMustEat(r.id);
-  const mustEatBtn = `
-    <button class="btn-must-eat-card-toggle${isME ? ' is-active' : ''}" onclick="toggleMustEat('${r.id}')">
+  const isME = type === 'restaurant' && isMustEat(item.id);
+  const mustEatBtn = type === 'restaurant' ? `
+    <button class="btn-must-eat-card-toggle${isME ? ' is-active' : ''}" onclick="toggleMustEat('${item.id}')">
       ${isME ? '★ 已在清單' : '☆ 必須吃到！'}
     </button>
-  `;
+  ` : '';
 
   // Return to Map button
   const mapReturnBtn = isFeedView
-    ? `<button class="btn-map-return" onclick="returnToMapFromFeed('${r.id}','${safeAttr(r.dongKR)}')">看地圖</button>`
-    : `<button class="btn-map-return" onclick="returnToMap('${r.id}','${safeAttr(r.dongKR)}')">看地圖</button>`;
+    ? `<button class="btn-map-return" onclick="returnToMapFromFeed('${item.id}','${safeAttr(item.dongKR)}')">看地圖</button>`
+    : `<button class="btn-map-return" onclick="returnToMap('${item.id}','${safeAttr(item.dongKR)}')">看地圖</button>`;
 
   // Schedule button
-  const scheduledDate = getScheduledDate(r.id);
+  const scheduledDate = getScheduledDate(item.id);
   const schedDateLabel = scheduledDate
     ? (SCHEDULE_DATES.find(d => d.key === scheduledDate) || {}).label
     : null;
-  const schedBtn = `<button class="btn-add-schedule${scheduledDate ? ' is-scheduled' : ''}" onclick="openSchedulePicker('${r.id}')">
+  const schedBtn = `<button class="btn-add-schedule${scheduledDate ? ' is-scheduled' : ''}" onclick="openSchedulePicker('${item.id}')">
     📅 ${scheduledDate ? `${schedDateLabel} 已排入` : '加入日程'}</button>`;
 
+  const headerActions = type === 'restaurant'
+    ? `<div class="m-card-header-actions">${mustEatBtn}${schedBtn}</div>`
+    : `<div class="m-card-header-actions">${schedBtn}</div>`;
+
+  const extraIgLink = (type !== 'restaurant' && item.IGreels)
+    ? `<div style="margin-top: 8px;"><a class="btn-ig" style="display:inline-flex;" href="${item.IGreels}" target="_blank" rel="noopener">📱 IG Reels</a></div>`
+    : '';
+
   return `
-    <div class="restaurant-rich-card" data-id="${r.id}">
+    <div class="restaurant-rich-card" data-id="${item.id}">
       <div class="m-card-header">
         <div class="m-card-header-titles">
           <div class="m-name-cn">${dispName}</div>
-          <div class="m-name-kr">${r.nameKR || '<span class="m-placeholder">韓文名稱待補</span>'}</div>
+          <div class="m-name-kr">${item.nameKR || '<span class="m-placeholder">名稱待補</span>'}</div>
         </div>
-        <div class="m-card-header-actions">
-          ${mustEatBtn}
-          ${schedBtn}
-        </div>
+        ${headerActions}
       </div>
 
       <div class="m-tags-row">
@@ -1407,6 +1507,7 @@ function createRestaurantCardHTML(r, isFeedView = false) {
       </div>
 
       ${ratingBlock}
+      ${extraIgLink}
 
       <div class="m-divider"></div>
 
@@ -1428,14 +1529,33 @@ function createRestaurantCardHTML(r, isFeedView = false) {
   `;
 }
 
-function openModal(restId) {
+function openModal(id) {
   hideTip();
-  const r = RESTAURANTS.find(x => x.id === restId);
-  if (!r) return;
-  S.fromModal = { restaurantId: restId };
+  let item = RESTAURANTS.find(x => x.id === id);
+  let type = 'restaurant';
+  if (!item) {
+    item = ATTRACTIONS.find(x => x.id === id);
+    type = 'attraction';
+  }
+  if (!item) {
+    item = THEATERS.find(x => x.id === id);
+    type = 'theater';
+  }
+  if (!item) return;
+  S.fromModal = { itemId: id, itemType: type };
 
-  document.getElementById('modal-body').innerHTML = createRestaurantCardHTML(r, false);
+  document.getElementById('modal-body').innerHTML = createCardHTML(item, type, false);
   document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function openAttractionCategoryList(cat) {
+  closeModal();
+  renderAttractionListView(cat);
+}
+
+function openTheaterCategoryList(cat) {
+  closeModal();
+  renderTheaterListView(cat);
 }
 
 function closeModal() {
@@ -1465,7 +1585,7 @@ function renderMustEatListView() {
   const mustEatRests = RESTAURANTS.filter(r => isMustEat(r.id));
 
   const cardsHTML = mustEatRests.map(r => {
-    const cardHTML = createRestaurantCardHTML(r, true);
+    const cardHTML = createCardHTML(r, 'restaurant', true);
     if (mustEatEditMode) {
       return `<div style="position:relative;">${cardHTML}
         <button class="sic-remove-btn" style="position:absolute;top:10px;right:10px;width:22px;height:22px;font-size:14px;"
@@ -1582,7 +1702,8 @@ function checkAndImportSchedule() {
         const dateKey = part.substring(0, colonIdx);
         const idsStr  = part.substring(colonIdx + 1);
         if (dateKey && idsStr) {
-          incoming[dateKey] = idsStr.split(',').filter(id => RESTAURANTS.some(r => r.id === id));
+          const allItems = [...RESTAURANTS, ...ATTRACTIONS, ...THEATERS];
+          incoming[dateKey] = idsStr.split(',').filter(id => allItems.some(r => r.id === id));
         }
       });
       const incomingTotal = Object.values(incoming).reduce((s, arr) => s + arr.length, 0);
@@ -1788,9 +1909,16 @@ function buildScheduleHTML() {
   const gridHTML = SCHEDULE_DATES.map(d => {
     const ids = scheduleData[d.key] || [];
     const itemsHTML = ids.map(id => {
-      const r = RESTAURANTS.find(x => x.id === id);
+      const r = RESTAURANTS.find(x => x.id === id)
+             || ATTRACTIONS.find(x => x.id === id)
+             || THEATERS.find(x => x.id === id);
       if (!r) return '';
-      const col = catColor(r.category);
+      
+      let col = '#C8A84B';
+      if (ATTRACTIONS.some(x => x.id === id)) col = '#E05E7A';
+      else if (THEATERS.some(x => x.id === id)) col = '#8A73B6';
+      else col = catColor(r.category);
+
       return `<div class="schedule-item-chip" ${scheduleEditMode ? '' : `onclick="openModal('${id}')"`} style="${scheduleEditMode ? 'cursor:default;' : ''}">
         <span class="sic-dot" style="background:${col}"></span>
         <span class="sic-name">${r.nameCN}</span>
@@ -1826,7 +1954,9 @@ function toggleScheduleEdit() {
 
 function confirmRemoveSchedule(id, dateKey, event) {
   event.stopPropagation();
-  const r = RESTAURANTS.find(x => x.id === id);
+  const r = RESTAURANTS.find(x => x.id === id)
+         || ATTRACTIONS.find(x => x.id === id)
+         || THEATERS.find(x => x.id === id);
   const name = r ? r.nameCN : id;
   if (confirm(`確定要從日程中移除「${name}」嗎？`)) {
     removeFromScheduleByDate(id, dateKey);
@@ -1869,7 +1999,7 @@ function confirmAddToSchedule(id, dateKey) {
   closeSchedulePicker();
   const dateLabel = (SCHEDULE_DATES.find(d => d.key === dateKey) || {}).label || dateKey;
   showToast(`已加入 ${dateLabel} 的日程！📅`);
-  if (S.fromModal && S.fromModal.restaurantId === id) openModal(id);
+  if (S.fromModal && S.fromModal.itemId === id) openModal(id);
 }
 
 function shareSchedule() {
@@ -1887,44 +2017,118 @@ function shareSchedule() {
 }
 
 // ── 「景點清單」臨時分頁 ──
-function renderAttractionListView() {
+// ── 「景點清單」分頁 ──
+function renderAttractionListView(openCat = null) {
   hideTip();
   S.view = 'attractionlist';
   S.openDong = null;
   S.gu = null;
   const app = document.getElementById('app');
-  app.innerHTML = `
-    <div class="view theater-view">
-      <div class="theater-card-container">
-        <div class="theater-emoji">🏛✨</div>
-        <div class="theater-text">
-          景點資料正在整理中，即將加入更多精彩景點！<br><br>
-          好期待我們的首爾探索哇(⌾ˉ ꒳ ˉ⌾)
+
+  const cats = [...new Set(ATTRACTIONS.flatMap(a => a.categories).filter(Boolean))];
+  const sectionsHTML = cats.map(cat => {
+    const items = ATTRACTIONS.filter(a => a.categories.includes(cat));
+    const col = '#E05E7A'; // attraction pink
+    const cardsHTML = items.map(a => {
+      return `
+        <div class="rest-card" onclick="openModal('${a.id}')">
+          <span class="rest-card-dot" style="background:${col}"></span>
+          <div class="rest-card-info">
+            <div class="rest-card-cn">${a.nameCN}</div>
+            <div class="rest-card-kr">${dongCN(a.dongKR)} · ${a.nameKR || ''}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const isOpen = (openCat === cat);
+    return `
+      <div class="cat-section">
+        <div class="cat-section-hd" onclick="toggleDongSection('attr-${safeAttr(cat)}')">
+          <span class="cat-dot-badge" style="background:${col}"></span>
+          <div class="cat-section-name-block">
+            <span class="cat-section-name">${cat}</span>
+          </div>
+          <span class="cat-section-cnt">${items.length} 處</span>
+          <span class="cat-arrow ${isOpen ? 'open' : ''}" id="arr-attr-${safeAttr(cat)}">›</span>
         </div>
-        <button class="btn-back" style="margin-top: 24px; padding: 10px 24px; font-size: 13px;" onclick="renderHome()">← 回到首頁</button>
+        <div class="inline-rest-list ${isOpen ? 'open' : ''}" id="list-attr-${safeAttr(cat)}">${cardsHTML}</div>
+      </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="view cat-view">
+      <div class="cat-header">
+        <button class="btn-back" onclick="renderHome()">← 首頁</button>
+        <span class="cat-header-title">景點清單</span>
+        <span class="cat-header-sub">${ATTRACTIONS.length} 處</span>
       </div>
+      <div class="cat-body">${sectionsHTML}</div>
     </div>
   `;
 }
 
-// ── 「劇場清單」臨時分頁 ──
-function renderTheaterListView() {
+// ── 「劇場清單」分頁 ──
+function renderTheaterListView(openCat = null) {
   hideTip();
   S.view = 'theaterlist';
   S.openDong = null;
   S.gu = null;
-  
   const app = document.getElementById('app');
-  app.innerHTML = `
-    <div class="view theater-view">
-      <div class="theater-card-container">
-        <div class="theater-emoji">🎭✨</div>
-        <div class="theater-text">
-          網站全力建置中，本功能會在蕭小姐24歲後才開始開發。請您稍等<br><br>
-          好期待我們的首爾行哇(⌾ˉ ꒳ ˉ⌾)
+
+  if (THEATERS.length === 0) {
+    app.innerHTML = `
+      <div class="view theater-view">
+        <div class="theater-card-container">
+          <div class="theater-emoji">🎭✨</div>
+          <div class="theater-text">
+            網站全力建置中，本功能會在蕭小姐24歲後才開始開發。請您稍等<br><br>
+            好期待我們的首爾行哇(⌾ˉ ꒳ ˉ⌾)
+          </div>
+          <button class="btn-back" style="margin-top: 24px; padding: 10px 24px; font-size: 13px;" onclick="renderHome()">← 回到首頁</button>
         </div>
-        <button class="btn-back" style="margin-top: 24px; padding: 10px 24px; font-size: 13px;" onclick="renderHome()">← 回到首頁</button>
       </div>
+    `;
+    return;
+  }
+
+  const cats = [...new Set(THEATERS.flatMap(t => t.categories).filter(Boolean))];
+  const sectionsHTML = cats.map(cat => {
+    const items = THEATERS.filter(t => t.categories.includes(cat));
+    const col = '#8A73B6'; // theater purple
+    const cardsHTML = items.map(t => {
+      return `
+        <div class="rest-card" onclick="openModal('${t.id}')">
+          <span class="rest-card-dot" style="background:${col}"></span>
+          <div class="rest-card-info">
+            <div class="rest-card-cn">${t.nameCN}</div>
+            <div class="rest-card-kr">${dongCN(t.dongKR)} · ${t.nameKR || ''}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const isOpen = (openCat === cat);
+    return `
+      <div class="cat-section">
+        <div class="cat-section-hd" onclick="toggleDongSection('theater-${safeAttr(cat)}')">
+          <span class="cat-dot-badge" style="background:${col}"></span>
+          <div class="cat-section-name-block">
+            <span class="cat-section-name">${cat}</span>
+          </div>
+          <span class="cat-section-cnt">${items.length} 齣</span>
+          <span class="cat-arrow ${isOpen ? 'open' : ''}" id="arr-theater-${safeAttr(cat)}">›</span>
+        </div>
+        <div class="inline-rest-list ${isOpen ? 'open' : ''}" id="list-theater-${safeAttr(cat)}">${cardsHTML}</div>
+      </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="view cat-view">
+      <div class="cat-header">
+        <button class="btn-back" onclick="renderHome()">← 首頁</button>
+        <span class="cat-header-title">劇場清單</span>
+        <span class="cat-header-sub">${THEATERS.length} 齣</span>
+      </div>
+      <div class="cat-body">${sectionsHTML}</div>
     </div>
   `;
 }
