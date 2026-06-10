@@ -986,7 +986,7 @@ function renderHome() {
         <button class="btn-pill btn-must-eat" onclick="renderMustEatListView()">⭐ 我必須吃到！</button>
         <button class="btn-pill btn-theater-list" onclick="renderTheaterListView()">🎭 劇場清單</button>
         <button class="btn-pill btn-attraction-list" onclick="renderAttractionListView()">🏛 景點清單</button>
-        <button class="btn-schedule-main" onclick="renderScheduleView()">✦ 排排看？ ✦</button>
+        <button class="btn-pill btn-schedule-main" onclick="renderScheduleView()">✦ 排排看？ ✦</button>
       </div>
     </div>
   `;

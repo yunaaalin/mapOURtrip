@@ -1293,6 +1293,7 @@ body {
 
 /* Home pill must eat custom styling */
 .btn-must-eat {
+  border-radius: 12px;
   border-color: #D69E10;
   color: #9C7B1A;
   background: rgba(243, 198, 63, 0.07);
@@ -1609,29 +1610,17 @@ body {
    SCHEDULE BUTTON (home page full-width sparkle)
    ============================================================ */
 .btn-schedule-main {
-  flex-basis: 100%;
-  padding: 13px 24px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(245, 239, 226, 0.06);
   color: var(--text-secondary);
-  font-family: 'Outfit', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 1.8px;
-  cursor: pointer;
   border: 1.5px solid rgba(196, 160, 75, 0.45);
-  transition: background 0.2s;
   animation: schedBorderPulse 3s ease-in-out infinite;
-  text-align: center;
 }
 @keyframes schedBorderPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(243, 198, 63, 0.12), inset 0 0 0 0 rgba(243,198,63,0); }
   50% { box-shadow: 0 0 16px 2px rgba(243, 198, 63, 0.22), inset 0 0 8px 0 rgba(243,198,63,0.04); }
 }
 .btn-schedule-main:hover { background: rgba(243, 198, 63, 0.08); }
-@media (max-width: 600px) {
-  .btn-schedule-main { width: 82%; font-size: 14px; }
-}
 
 /* ============================================================
    SCHEDULE VIEW PAGE
