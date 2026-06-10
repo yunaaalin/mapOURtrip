@@ -60,6 +60,21 @@ const GU_KR_TO_CN = {
 const MUST_EAT_KEY = 'seoul_must_eat';
 let mustEatIds = [];
 
+const SCHEDULE_KEY = 'seoul_schedule';
+const SCHEDULE_DATES = [
+  { key: '20250811', label: '8/11', day: '一' },
+  { key: '20250812', label: '8/12', day: '二' },
+  { key: '20250813', label: '8/13', day: '三' },
+  { key: '20250814', label: '8/14', day: '四' },
+  { key: '20250815', label: '8/15', day: '五' },
+  { key: '20250816', label: '8/16', day: '六' },
+  { key: '20250817', label: '8/17', day: '日' },
+  { key: '20250818', label: '8/18', day: '一' },
+];
+let scheduleData = {};
+let scheduleEditMode = false;
+let mustEatEditMode = false;
+
 const S = {
   geoData:   null,
   dongData:  null,
@@ -91,6 +106,42 @@ function isMustEat(id) {
   return mustEatIds.includes(id);
 }
 
+function loadSchedule() {
+  const saved = localStorage.getItem(SCHEDULE_KEY);
+  if (saved) {
+    try { scheduleData = JSON.parse(saved); }
+    catch (e) { scheduleData = {}; }
+  }
+}
+
+function saveSchedule() {
+  localStorage.setItem(SCHEDULE_KEY, JSON.stringify(scheduleData));
+}
+
+function getScheduledDate(id) {
+  for (const [dateKey, ids] of Object.entries(scheduleData)) {
+    if (ids && ids.includes(id)) return dateKey;
+  }
+  return null;
+}
+
+function addToSchedule(id, dateKey) {
+  // Remove from any existing date first
+  for (const dk of Object.keys(scheduleData)) {
+    if (scheduleData[dk]) scheduleData[dk] = scheduleData[dk].filter(x => x !== id);
+  }
+  if (!scheduleData[dateKey]) scheduleData[dateKey] = [];
+  if (!scheduleData[dateKey].includes(id)) scheduleData[dateKey].push(id);
+  saveSchedule();
+}
+
+function removeFromScheduleByDate(id, dateKey) {
+  if (scheduleData[dateKey]) {
+    scheduleData[dateKey] = scheduleData[dateKey].filter(x => x !== id);
+    saveSchedule();
+  }
+}
+
 function toggleMustEat(id) {
   const idx = mustEatIds.indexOf(id);
   if (idx === -1) {
@@ -106,7 +157,7 @@ function toggleMustEat(id) {
     openModal(id);
   }
   
-  refreshCurrentView();
+  if (S.view !== 'musteatlist') refreshCurrentView();
 }
 
 function refreshCurrentView() {
@@ -117,6 +168,8 @@ function refreshCurrentView() {
   else if (S.view === 'categorylist') renderCategoryListView();
   else if (S.view === 'musteatlist') renderMustEatListView();
   else if (S.view === 'theaterlist') renderTheaterListView();
+  else if (S.view === 'attractionlist') renderAttractionListView();
+  else if (S.view === 'schedule') renderScheduleView();
 }
 
 // ── Lightweight Toast Notification ──
@@ -932,6 +985,8 @@ function renderHome() {
         <button class="btn-pill btn-category-list" onclick="renderCategoryListView()">⊞ 分類清單</button>
         <button class="btn-pill btn-must-eat" onclick="renderMustEatListView()">⭐ 我必須吃到！</button>
         <button class="btn-pill btn-theater-list" onclick="renderTheaterListView()">🎭 劇場清單</button>
+        <button class="btn-pill btn-attraction-list" onclick="renderAttractionListView()">🏛 景點清單</button>
+        <button class="btn-schedule-main" onclick="renderScheduleView()">✦ 排排看？ ✦</button>
       </div>
     </div>
   `;
@@ -1046,22 +1101,24 @@ function gotoGu(guName) {
         </div>
       </div>
       
-      <div class="gu-dongs-nav">
-        <div class="gu-dongs-nav-title">地區快速瀏覽：</div>
-        <div class="gu-dongs-nav-list">
-          ${dongs.map(dongKR => {
-            const cnt = RESTAURANTS.filter(r => r.dongKR === dongKR).length;
-            return `
-              <button class="btn-dong-nav" onclick="gotoDong('${safeAttr(dongKR)}')">
-                <span class="btn-dong-nav-name">${dongCN(dongKR)}</span>
-                <span class="btn-dong-nav-count">${cnt}間</span>
-              </button>`;
-          }).join('')}
-        </div>
-      </div>
-
-      <div class="gu-hint">
-        點藍色區塊，就能看到那裡有哪些餐廳 👆
+      <div class="map-table-section">
+        ${dongs.map(dongKR => {
+          const dongRests = RESTAURANTS.filter(r => r.dongKR === dongKR);
+          if (dongRests.length === 0) return '';
+          const dcn = dongCN(dongKR);
+          const chipsHTML = dongRests.map(r => {
+            const col = catColor(r.category);
+            return `<button class="map-table-chip" onclick="openModal('${r.id}')">
+              <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`;
+          }).join('');
+          return `<div class="map-table-group">
+            <div class="map-table-dong-header">
+              <span>${dcn}</span>
+              <button class="map-table-dong-goto" onclick="gotoDong('${safeAttr(dongKR)}')">看地圖 →</button>
+            </div>
+            <div class="map-table-items">${chipsHTML}</div>
+          </div>`;
+        }).join('')}
       </div>
     </div>
   `;
@@ -1109,17 +1166,15 @@ function gotoDong(dongKR, highlightId = null) {
     const isMust = isMustEat(r.id);
     
     const shape = isMust 
-      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 10, 4.5)}" />`
-      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="7" fill="${col}"/>`;
+      ? `<polygon class="dot-star" points="${getStarPoints(rx, ry, 5, 12, 5.5)}" />`
+      : `<circle class="dot-circle" cx="${rx.toFixed(1)}" cy="${ry.toFixed(1)}" r="9" fill="${col}"/>`;
 
     return `
       <g class="rest-dot${isHL ? ' dot-hl' : ''}${isMust ? ' dot-is-must' : ''}" id="dot-${r.id}"
          onclick="openModal('${r.id}')"
          onmouseenter="showTip(event,'${safeAttr(r.nameCN)}')"
          onmouseleave="hideTip()">
-        <line class="label-line" x1="${rx.toFixed(1)}" y1="${ry.toFixed(1)}" x2="${rx.toFixed(1)}" y2="${(ry-12).toFixed(1)}" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" style="display:none;"/>
         ${shape}
-        <text class="dot-label" x="${rx.toFixed(1)}" y="${(ry-12).toFixed(1)}">${r.nameCN}</text>
       </g>`;
   }).join('');
 
@@ -1150,6 +1205,23 @@ function gotoDong(dongKR, highlightId = null) {
           </div>
           <button class="zoom-btn" id="dist-zoom-out">－</button>
         </div>
+      </div>
+      <div class="map-table-section">
+        ${(() => {
+          const cats = [...new Set(rests.map(r => r.category).filter(Boolean))];
+          return cats.map(cat => {
+            const catRests = rests.filter(r => r.category === cat);
+            const col = catColor(cat);
+            const chipsHTML = catRests.map(r =>
+              `<button class="map-table-chip" onclick="openModal('${r.id}')">
+                <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`
+            ).join('');
+            return `<div class="map-table-group">
+              <div class="map-table-cat-header">${cat}</div>
+              <div class="map-table-items">${chipsHTML}</div>
+            </div>`;
+          }).join('');
+        })()}
       </div>
       <div class="dong-footer">
         <button class="btn-home-footer" onclick="renderHome()">回首頁</button>
@@ -1300,6 +1372,14 @@ function createRestaurantCardHTML(r, isFeedView = false) {
     ? `<button class="btn-map-return" onclick="returnToMapFromFeed('${r.id}','${safeAttr(r.dongKR)}')">看地圖</button>`
     : `<button class="btn-map-return" onclick="returnToMap('${r.id}','${safeAttr(r.dongKR)}')">看地圖</button>`;
 
+  // Schedule button
+  const scheduledDate = getScheduledDate(r.id);
+  const schedDateLabel = scheduledDate
+    ? (SCHEDULE_DATES.find(d => d.key === scheduledDate) || {}).label
+    : null;
+  const schedBtn = `<button class="btn-add-schedule${scheduledDate ? ' is-scheduled' : ''}" onclick="openSchedulePicker('${r.id}')">
+    📅 ${scheduledDate ? `${schedDateLabel} 已排入` : '加入日程'}</button>`;
+
   return `
     <div class="restaurant-rich-card" data-id="${r.id}">
       <div class="m-card-header">
@@ -1330,6 +1410,7 @@ function createRestaurantCardHTML(r, isFeedView = false) {
 
       <div class="m-actions">
         ${mapReturnBtn}
+        ${schedBtn}
         ${naverBtn}
         ${googleBtn}
       </div>
@@ -1373,7 +1454,16 @@ function renderMustEatListView() {
   const app = document.getElementById('app');
   const mustEatRests = RESTAURANTS.filter(r => isMustEat(r.id));
 
-  const cardsHTML = mustEatRests.map(r => createRestaurantCardHTML(r, true)).join('');
+  const cardsHTML = mustEatRests.map(r => {
+    const cardHTML = createRestaurantCardHTML(r, true);
+    if (mustEatEditMode) {
+      return `<div style="position:relative;">${cardHTML}
+        <button class="sic-remove-btn" style="position:absolute;top:10px;right:10px;width:22px;height:22px;font-size:14px;"
+          onclick="confirmRemoveMustEat('${r.id}')">－</button>
+      </div>`;
+    }
+    return cardHTML;
+  }).join('');
 
   const emptyHTML = `
     <div class="list-empty">
@@ -1388,8 +1478,10 @@ function renderMustEatListView() {
       <button class="btn-back" onclick="renderHome()">← 首頁</button>
       <span class="must-eat-header-title">🐽 我必須吃到！</span>
       <span class="must-eat-header-sub">${mustEatRests.length} 間</span>
-      ${mustEatRests.length > 0 
-        ? `<button class="btn-share-list" onclick="shareMustEatList()">🔗 分享清單</button>`
+      ${mustEatRests.length > 0
+        ? `<button class="btn-share-list" onclick="shareMustEatList()">🔗 分享清單</button>
+           <button class="btn-schedule-edit${mustEatEditMode ? ' is-active' : ''}" onclick="toggleMustEatEdit()">
+             ${mustEatEditMode ? '✓ 完成' : '✏️ 編輯'}</button>`
         : ''
       }
     </div>
@@ -1403,6 +1495,25 @@ function renderMustEatListView() {
       </div>
     </div>
   `;
+}
+
+function toggleMustEatEdit() {
+  mustEatEditMode = !mustEatEditMode;
+  renderMustEatListView();
+}
+
+function confirmRemoveMustEat(id) {
+  const r = RESTAURANTS.find(x => x.id === id);
+  const name = r ? r.nameCN : id;
+  if (confirm(`確定要從「我必須吃到！」移除「${name}」嗎？`)) {
+    const idx = mustEatIds.indexOf(id);
+    if (idx !== -1) {
+      mustEatIds.splice(idx, 1);
+      saveMustEat();
+      showToast(`已移出「${name}」`);
+      renderMustEatListView();
+    }
+  }
 }
 
 // ── 旅伴分享網址產生 ──
@@ -1426,19 +1537,14 @@ function shareMustEatList() {
 function checkAndImportSharedList() {
   const hash = window.location.hash;
   if (hash.startsWith('#share=')) {
-    const idsStr = hash.substring(7);
+    const idsStr = hash.substring(7).split('&')[0];
     if (idsStr) {
-      const ids = idsStr.split(',').filter(id => {
-        return RESTAURANTS.some(r => r.id === id);
-      });
+      const ids = idsStr.split(',').filter(id => RESTAURANTS.some(r => r.id === id));
       if (ids.length > 0) {
         loadMustEat();
         let addedCount = 0;
         ids.forEach(id => {
-          if (!mustEatIds.includes(id)) {
-            mustEatIds.push(id);
-            addedCount++;
-          }
+          if (!mustEatIds.includes(id)) { mustEatIds.push(id); addedCount++; }
         });
         if (addedCount > 0) {
           saveMustEat();
@@ -1446,9 +1552,48 @@ function checkAndImportSharedList() {
         } else {
           showToast('您已擁有旅伴分享的所有必吃餐廳！👌');
         }
-        setTimeout(() => {
-          renderMustEatListView();
-        }, 300);
+        setTimeout(() => renderMustEatListView(), 300);
+      }
+    }
+    history.replaceState(null, document.title, window.location.pathname + window.location.search);
+  }
+}
+
+function checkAndImportSchedule() {
+  const hash = window.location.hash;
+  if (hash.includes('sched=')) {
+    const schedIdx = hash.indexOf('sched=');
+    const schedStr = hash.substring(schedIdx + 6).split('&')[0];
+    if (schedStr) {
+      const incoming = {};
+      schedStr.split('|').forEach(part => {
+        const colonIdx = part.indexOf(':');
+        if (colonIdx === -1) return;
+        const dateKey = part.substring(0, colonIdx);
+        const idsStr  = part.substring(colonIdx + 1);
+        if (dateKey && idsStr) {
+          incoming[dateKey] = idsStr.split(',').filter(id => RESTAURANTS.some(r => r.id === id));
+        }
+      });
+      const incomingTotal = Object.values(incoming).reduce((s, arr) => s + arr.length, 0);
+      if (incomingTotal > 0) {
+        let addedCount = 0;
+        for (const [dateKey, ids] of Object.entries(incoming)) {
+          if (!scheduleData[dateKey]) scheduleData[dateKey] = [];
+          ids.forEach(id => {
+            for (const dk of Object.keys(scheduleData)) {
+              if (dk !== dateKey) scheduleData[dk] = (scheduleData[dk] || []).filter(x => x !== id);
+            }
+            if (!scheduleData[dateKey].includes(id)) { scheduleData[dateKey].push(id); addedCount++; }
+          });
+        }
+        if (addedCount > 0) {
+          saveSchedule();
+          showToast(`已合併旅伴的行程！新增了 ${addedCount} 項 📅`);
+        } else {
+          showToast('您已擁有旅伴分享的所有行程！👌');
+        }
+        setTimeout(() => renderScheduleView(), 300);
       }
     }
     history.replaceState(null, document.title, window.location.pathname + window.location.search);
@@ -1616,6 +1761,142 @@ function toggleDongSection(dongKR) {
   if (arr) arr.classList.toggle('open', isOpen);
 }
 
+// ── 「排排看？」行程分頁 ──
+function renderScheduleView() {
+  hideTip();
+  S.view = 'schedule';
+  S.openDong = null;
+  S.gu = null;
+  scheduleEditMode = false;
+  const app = document.getElementById('app');
+  app.innerHTML = buildScheduleHTML();
+}
+
+function buildScheduleHTML() {
+  const totalItems = Object.values(scheduleData).reduce((s, arr) => s + (arr ? arr.length : 0), 0);
+
+  const gridHTML = SCHEDULE_DATES.map(d => {
+    const ids = scheduleData[d.key] || [];
+    const itemsHTML = ids.map(id => {
+      const r = RESTAURANTS.find(x => x.id === id);
+      if (!r) return '';
+      const col = catColor(r.category);
+      return `<div class="schedule-item-chip" ${scheduleEditMode ? '' : `onclick="openModal('${id}')"`} style="${scheduleEditMode ? 'cursor:default;' : ''}">
+        <span class="sic-dot" style="background:${col}"></span>
+        <span class="sic-name">${r.nameCN}</span>
+        ${scheduleEditMode ? `<button class="sic-remove-btn" onclick="confirmRemoveSchedule('${id}','${d.key}',event)">－</button>` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="schedule-date-card">
+      <div class="sdc-date">${d.label}</div>
+      <div class="sdc-day">${d.day}</div>
+      <div class="sdc-items">${itemsHTML || '<div class="sdc-empty">尚未排入</div>'}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="view schedule-view">
+      <div class="must-eat-header">
+        <button class="btn-back" onclick="renderHome()">← 首頁</button>
+        <span class="must-eat-header-title">✦ 排排看？</span>
+        <span class="must-eat-header-sub">${totalItems} 項</span>
+        ${totalItems > 0 ? `<button class="btn-share-list" onclick="shareSchedule()">🔗 分享</button>` : ''}
+        <button class="btn-schedule-edit${scheduleEditMode ? ' is-active' : ''}" onclick="toggleScheduleEdit()">
+          ${scheduleEditMode ? '✓ 完成' : '✏️ 編輯'}</button>
+      </div>
+      <div class="schedule-grid">${gridHTML}</div>
+    </div>
+  `;
+}
+
+function toggleScheduleEdit() {
+  scheduleEditMode = !scheduleEditMode;
+  document.getElementById('app').innerHTML = buildScheduleHTML();
+}
+
+function confirmRemoveSchedule(id, dateKey, event) {
+  event.stopPropagation();
+  const r = RESTAURANTS.find(x => x.id === id);
+  const name = r ? r.nameCN : id;
+  if (confirm(`確定要從日程中移除「${name}」嗎？`)) {
+    removeFromScheduleByDate(id, dateKey);
+    showToast(`已從日程移除「${name}」`);
+    document.getElementById('app').innerHTML = buildScheduleHTML();
+  }
+}
+
+function openSchedulePicker(id) {
+  const existing = document.getElementById('schedule-picker-overlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'schedule-picker-overlay';
+  overlay.className = 'schedule-picker-overlay';
+  const gridHTML = SCHEDULE_DATES.map(d => {
+    const count = (scheduleData[d.key] || []).length;
+    return `<button class="schedule-picker-btn" onclick="confirmAddToSchedule('${id}','${d.key}')">
+      <span class="spb-label">${d.label}</span>
+      <span class="spb-day">(${d.day})</span>
+      ${count > 0 ? `<span class="spb-count">${count} 項</span>` : ''}
+    </button>`;
+  }).join('');
+  overlay.innerHTML = `
+    <div class="schedule-picker-sheet">
+      <div class="schedule-picker-title">📅 選擇加入日期</div>
+      <div class="schedule-picker-grid">${gridHTML}</div>
+      <button class="schedule-picker-close" onclick="closeSchedulePicker()">取消</button>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeSchedulePicker(); });
+  document.body.appendChild(overlay);
+}
+
+function closeSchedulePicker() {
+  const overlay = document.getElementById('schedule-picker-overlay');
+  if (overlay) overlay.remove();
+}
+
+function confirmAddToSchedule(id, dateKey) {
+  addToSchedule(id, dateKey);
+  closeSchedulePicker();
+  const dateLabel = (SCHEDULE_DATES.find(d => d.key === dateKey) || {}).label || dateKey;
+  showToast(`已加入 ${dateLabel} 的日程！📅`);
+  if (S.fromModal && S.fromModal.restaurantId === id) openModal(id);
+}
+
+function shareSchedule() {
+  const parts = [];
+  for (const d of SCHEDULE_DATES) {
+    const ids = scheduleData[d.key] || [];
+    if (ids.length > 0) parts.push(`${d.key}:${ids.join(',')}`);
+  }
+  if (parts.length === 0) { showToast('行程還是空的，先排幾個地方吧！'); return; }
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${baseUrl}#sched=${parts.join('|')}`;
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    showToast('已複製行程分享網址！傳給旅伴即可同步 📅');
+  }).catch(() => showToast('複製失敗，請手動複製網址'));
+}
+
+// ── 「景點清單」臨時分頁 ──
+function renderAttractionListView() {
+  hideTip();
+  S.view = 'attractionlist';
+  S.openDong = null;
+  S.gu = null;
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="view theater-view">
+      <div class="theater-card-container">
+        <div class="theater-emoji">🏛✨</div>
+        <div class="theater-text">
+          景點資料正在整理中，即將加入更多精彩景點！<br><br>
+          好期待我們的首爾探索哇(⌾ˉ ꒳ ˉ⌾)
+        </div>
+        <button class="btn-back" style="margin-top: 24px; padding: 10px 24px; font-size: 13px;" onclick="renderHome()">← 回到首頁</button>
+      </div>
+    </div>
+  `;
+}
+
 // ── 「劇場清單」臨時分頁 ──
 function renderTheaterListView() {
   hideTip();
@@ -1644,8 +1925,10 @@ function renderTheaterListView() {
 async function init() {
   initParticles();
   loadMustEat();
+  loadSchedule();
   await loadGeo();
   checkAndImportSharedList();
+  checkAndImportSchedule();
   renderHome();
 
   document.getElementById('modal-overlay').addEventListener('click', e => {
