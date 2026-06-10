@@ -1480,5 +1480,22 @@ const THEATERS = [
     "naverUrl": "https://naver.me/xique5B3",
     "dongKR": "잠실3동",
     "dongEN": "Jamsil 3(sam)-dong"
+  },
+  {
+    "id": "t_2",
+    "district": "jongno",
+    "nameCN": "Curtain call",
+    "nameKR": "뮤지컬펍 커튼콜",
+    "lat": 37.58249397203444,
+    "lng": 127.00307696720526,
+    "categories": ["已購票"],
+    "hashtags": [],
+    "descText": "一定要去的啊(ง⸝⸝ᵒ̴̶̷ωᵒ̴̶̷⸝⸝)ว🎶",
+    "theaterUrl": "https://www.instagram.com/curtaincall_star/",
+    "addressEN": "22 Daehak-ro 12-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/jyMWAZjviqVE41dW7",
+    "naverUrl": "https://naver.me/FQVGKSI0",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
   }
 ];

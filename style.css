@@ -1806,7 +1806,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(30, 20, 10, 0.52);
-  z-index: 300;
+  z-index: 600;
   display: flex;
   align-items: flex-end;
   justify-content: center;

@@ -44,6 +44,7 @@ const DONG_KR_TO_CN = {
   '한강로동':        '漢江路洞',
   '황학동':          '黃鶴洞',
   '잠실3동':         '蠶室洞',
+  '혜화동':          '惠化洞',
 };
 
 const GU_KR_TO_CN = {
@@ -63,14 +64,14 @@ let mustEatIds = [];
 
 const SCHEDULE_KEY = 'seoul_schedule';
 const SCHEDULE_DATES = [
-  { key: '20250811', label: '8/11', day: '一' },
-  { key: '20250812', label: '8/12', day: '二' },
-  { key: '20250813', label: '8/13', day: '三' },
-  { key: '20250814', label: '8/14', day: '四' },
-  { key: '20250815', label: '8/15', day: '五' },
-  { key: '20250816', label: '8/16', day: '六' },
-  { key: '20250817', label: '8/17', day: '日' },
-  { key: '20250818', label: '8/18', day: '一' },
+  { key: '20250811', label: '8/11', day: '二' },
+  { key: '20250812', label: '8/12', day: '三' },
+  { key: '20250813', label: '8/13', day: '四' },
+  { key: '20250814', label: '8/14', day: '五' },
+  { key: '20250815', label: '8/15', day: '六' },
+  { key: '20250816', label: '8/16', day: '日' },
+  { key: '20250817', label: '8/17', day: '一' },
+  { key: '20250818', label: '8/18', day: '二' },
 ];
 let scheduleData = {};
 let scheduleEditMode = false;
