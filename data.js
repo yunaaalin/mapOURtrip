@@ -1553,6 +1553,10 @@ const THEATERS = [
       {
         "descText": "2館 - Stravinsky 스트라빈스키",
         "theaterUrl": "https://www.kontenx.net/shows/2600090"
+      },
+      {
+        "descText": "3館 - Iolaus 이올라오스",
+        "theaterUrl": "https://yes24stage.com/ko/show/detail.php?id=779&P=1&search_obj=&search_str=&type=2&perform_date=20260621"
       }
     ],
     "addressEN": "83 Daehak-ro 12-gil, Jongno District, Seoul",
@@ -1600,13 +1604,13 @@ const THEATERS = [
     "district": "jongno",
     "nameCN": "Link Art Center",
     "nameKR": "링크아트센터",
-    "lat": 37.584650091422745,
-    "lng": 127.00232313477788,
+    "lat": 37.584628176238795,
+    "lng": 127.00234672487679,
     "categories": ["韓國原創"],
     "hashtags": [],
     "shows": [
       {
-        "descText": "BUGS Hall - BLACK MARY POPPINS 블랙메리포핀斯",
+        "descText": "BUGS Hall - BLACK MARY POPPINS 블랙메리포핀스",
         "theaterUrl": "https://www.kontenx.net/shows/2600076"
       },
       {
@@ -1615,7 +1619,7 @@ const THEATERS = [
       }
     ],
     "addressEN": "29 Daehak-ro 14-gil, Jongno District, Seoul",
-    "googleUrl": "https://maps.app.goo.gl/oLJJ2iPFGrbeXG3A7",
+    "googleUrl": "https://maps.app.goo.gl/HWQwNxshAXLap2Zg6",
     "naverUrl": "https://naver.me/x2jQCvuM",
     "dongKR": "혜화동",
     "dongEN": "Hyehwa-dong"
@@ -1640,14 +1644,22 @@ const THEATERS = [
   {
     "id": "t_10",
     "district": "jongno",
-    "nameCN": "T.O.M Theatre 1館",
+    "nameCN": "T.O.M Theatre",
     "nameKR": "대학로티오엠",
     "lat": 37.582255941944894,
     "lng": 127.00371155926106,
     "categories": ["韓國原創"],
     "hashtags": [],
-    "descText": "MAD HATTER 매드해터: 미친 모자장수 이야기",
-    "theaterUrl": "https://www.kontenx.net/shows/2600074",
+    "shows": [
+      {
+        "descText": "1館 - MAD HATTER 매드해터: 미친 모자장수 이야기",
+        "theaterUrl": "https://www.kontenx.net/shows/2600074"
+      },
+      {
+        "descText": "2館 - Portrait of a boy 소년의 초상",
+        "theaterUrl": "http://www.towntom.com/index.php?mid=theater2&category=307"
+      }
+    ],
     "addressEN": "85 Daehak-ro 8ga-gil, Jongno District, Seoul",
     "googleUrl": "https://maps.app.goo.gl/6ka1vN3d2bDXimXq9",
     "naverUrl": "https://naver.me/GbDFdkSg",
@@ -1702,6 +1714,23 @@ const THEATERS = [
     "addressEN": "73 Daehak-ro 12-gil, Jongno District, Seoul",
     "googleUrl": "https://maps.app.goo.gl/PVDghr67GLQ2P8pLA",
     "naverUrl": "https://naver.me/xPYjA6wx",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_14",
+    "district": "jongno",
+    "nameCN": "Yes24 Stage 1館",
+    "nameKR": "예스24스테이지",
+    "lat": 37.58271116344213,
+    "lng": 127.00321334897015,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "해몽가 解夢者",
+    "theaterUrl": "https://yes24stage.com/ko/show/detail.php?id=780&P=1&search_obj=&search_str=&type=2&perform_date=20260625",
+    "addressEN": "21 Daehak-ro 12-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/EbiLYM1jxdFdeepZ6",
+    "naverUrl": "https://naver.me/52R55vYZ",
     "dongKR": "혜화동",
     "dongEN": "Hyehwa-dong"
   }
