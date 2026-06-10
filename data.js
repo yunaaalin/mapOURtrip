@@ -65,6 +65,10 @@ const DISTRICTS = {
   "songpa": {
     "nameCN": "松坡區",
     "nameKR": "송파구"
+  },
+  "gangseo": {
+    "nameCN": "江西區",
+    "nameKR": "강서구"
   }
 };
 
@@ -1495,6 +1499,209 @@ const THEATERS = [
     "addressEN": "22 Daehak-ro 12-gil, Jongno District, Seoul",
     "googleUrl": "https://maps.app.goo.gl/jyMWAZjviqVE41dW7",
     "naverUrl": "https://naver.me/FQVGKSI0",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_3",
+    "district": "jung",
+    "nameCN": "忠武藝術中心 大劇場",
+    "nameKR": "충무아트센터",
+    "lat": 37.565937576274976,
+    "lng": 127.0148377383688,
+    "categories": ["美國版權"],
+    "hashtags": [],
+    "descText": "Dear Evan Hansen 디어에반 핸슨",
+    "theaterUrl": "https://www.kontenx.net/shows/2600096",
+    "addressEN": "387 Toegye-ro, Jung District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/QijnyWEzcACC1veRA",
+    "naverUrl": "https://naver.me/x8tpHeCf",
+    "dongKR": "신당동",
+    "dongEN": "Sindang-dong"
+  },
+  {
+    "id": "t_4",
+    "district": "gangseo",
+    "nameCN": "LG藝術中心 LG SIGNATURE廳",
+    "nameKR": "LG아트센터 서울",
+    "lat": 37.56512068936257,
+    "lng": 126.82958266720433,
+    "categories": ["已購票"],
+    "hashtags": [],
+    "descText": "DRACULA 드라큘라",
+    "theaterUrl": "https://www.instagram.com/reel/DYgaoTASP2Q/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "addressEN": "136 Magokjungang-ro, Gangseo-gu, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/BqQ6yZifvASVuBnw5",
+    "naverUrl": "https://naver.me/GRo4xAgP",
+    "dongKR": "가양1동",
+    "dongEN": "Gayang 1(il)-dong"
+  },
+  {
+    "id": "t_5",
+    "district": "jongno",
+    "nameCN": "YES24 Art One",
+    "nameKR": "예스24아트원",
+    "lat": 37.58022306943089,
+    "lng": 127.00395748069816,
+    "categories": ["韓國原創", "英國版權"],
+    "hashtags": [],
+    "shows": [
+      {
+        "descText": "1館 - 斷背山 브로크백 마운틴",
+        "theaterUrl": "https://www.kontenx.net/shows/2600092"
+      },
+      {
+        "descText": "2館 - Stravinsky 스트라빈스키",
+        "theaterUrl": "https://www.kontenx.net/shows/2600090"
+      }
+    ],
+    "addressEN": "83 Daehak-ro 12-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/e4NRPnBj2dpgwgb9A",
+    "naverUrl": "https://naver.me/GUw96B72",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_6",
+    "district": "jongno",
+    "nameCN": "同德女子大學公演藝術中心 Cotton Hall",
+    "nameKR": "동덕여자대학교 공연예술센터",
+    "lat": 37.58370837424109,
+    "lng": 127.003267709534,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "物種起源 종의 기원",
+    "theaterUrl": "https://www.kontenx.net/shows/2600087",
+    "addressEN": "126 Dongsung-gil, Dongsung-dong, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/ogDvsC2MVrWm8n6SA",
+    "naverUrl": "https://naver.me/xJiBwuVC",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_7",
+    "district": "jongno",
+    "nameCN": "弘益大學大學路藝術中心",
+    "nameKR": "홍익대학교 대학로 아트센터",
+    "lat": 37.57665566902455,
+    "lng": 127.00185119604066,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "帕格尼尼 파가니니",
+    "theaterUrl": "https://www.kontenx.net/shows/2600077",
+    "addressEN": "57 Daehak-ro, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/oLJJ2iPFGrbeXG3A7",
+    "naverUrl": "https://naver.me/FEUpPTpe",
+    "dongKR": "이화동",
+    "dongEN": "Ihwa-dong"
+  },
+  {
+    "id": "t_8",
+    "district": "jongno",
+    "nameCN": "Link Art Center",
+    "nameKR": "링크아트센터",
+    "lat": 37.584650091422745,
+    "lng": 127.00232313477788,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "shows": [
+      {
+        "descText": "BUGS Hall - BLACK MARY POPPINS 블랙메리포핀斯",
+        "theaterUrl": "https://www.kontenx.net/shows/2600076"
+      },
+      {
+        "descText": "PAYCO Hall - 死之詠贊 사의찬미",
+        "theaterUrl": "https://www.kontenx.net/shows/2600091"
+      }
+    ],
+    "addressEN": "29 Daehak-ro 14-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/oLJJ2iPFGrbeXG3A7",
+    "naverUrl": "https://naver.me/x2jQCvuM",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_9",
+    "district": "jongno",
+    "nameCN": "Link Art Center Dream 4館",
+    "nameKR": "링크아트센터드림",
+    "lat": 37.58331067654012,
+    "lng": 127.00329169604102,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "朴烈 박열",
+    "theaterUrl": "https://www.kontenx.net/shows/2600085",
+    "addressEN": "123 Dongsung-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/sYQBoiG82phyHctb6",
+    "naverUrl": "https://naver.me/Fk73uGGZ",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_10",
+    "district": "jongno",
+    "nameCN": "T.O.M Theatre 1館",
+    "nameKR": "대학로티오엠",
+    "lat": 37.582255941944894,
+    "lng": 127.00371155926106,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "MAD HATTER 매드해터: 미친 모자장수 이야기",
+    "theaterUrl": "https://www.kontenx.net/shows/2600074",
+    "addressEN": "85 Daehak-ro 8ga-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/6ka1vN3d2bDXimXq9",
+    "naverUrl": "https://naver.me/GbDFdkSg",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_11",
+    "district": "jongno",
+    "nameCN": "NOL 西京廣場 2館",
+    "nameKR": "NOL 서경스퀘어",
+    "lat": 37.58352407426231,
+    "lng": 127.00216659604092,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "晦暗之神 어둑시니",
+    "theaterUrl": "https://www.kontenx.net/shows/2600080",
+    "addressEN": "148 Dongsung-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/JujwE7RPwFGmFWsKA",
+    "naverUrl": "https://naver.me/GXApfdL4",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_12",
+    "district": "jongno",
+    "nameCN": "NOLTheatre 大學路 友利投資證券廳",
+    "nameKR": "NOL 씨어터 대학로",
+    "lat": 37.58286616973204,
+    "lng": 127.00442122487661,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "[1차!] 卡拉馬佐夫兄弟們 브라더스 까라마조프",
+    "theaterUrl": "https://www.kontenx.net/shows/2600061",
+    "addressEN": "100 Dongsung-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/Mo6Km527eHJxnwir9",
+    "naverUrl": "https://naver.me/GI3gDi0N",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_13",
+    "district": "jongno",
+    "nameCN": "Plus Theatre",
+    "nameKR": "플러스씨어터",
+    "lat": 37.58079067457516,
+    "lng": 127.00396046720526,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "星際信使 시데레우스",
+    "theaterUrl": "https://www.kontenx.net/shows/2600079",
+    "addressEN": "73 Daehak-ro 12-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/PVDghr67GLQ2P8pLA",
+    "naverUrl": "https://naver.me/xPYjA6wx",
     "dongKR": "혜화동",
     "dongEN": "Hyehwa-dong"
   }

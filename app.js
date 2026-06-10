@@ -45,6 +45,7 @@ const DONG_KR_TO_CN = {
   '황학동':          '黃鶴洞',
   '잠실3동':         '蠶室洞',
   '혜화동':          '惠化洞',
+  '이화동':          '梨花洞',
 };
 
 const GU_KR_TO_CN = {
@@ -1388,12 +1389,21 @@ function createCardHTML(item, type, isFeedView = false) {
         ✨ ${item.introText}
       </div>` : '';
   } else if (type === 'theater') {
-    ratingBlock = item.descText ? `
-      <div class="m-theater-desc-row">
-        <a class="m-theater-link" href="${item.theaterUrl || '#'}" target="_blank" rel="noopener">
-          🎭 ${item.descText} ↗
-        </a>
-      </div>` : '';
+    if (item.shows && item.shows.length > 0) {
+      ratingBlock = item.shows.map(show => `
+        <div class="m-theater-desc-row" style="margin-top: 6px;">
+          <a class="m-theater-link" href="${show.theaterUrl || '#'}" target="_blank" rel="noopener">
+            🎭 ${show.descText} ↗
+          </a>
+        </div>`).join('');
+    } else {
+      ratingBlock = item.descText ? `
+        <div class="m-theater-desc-row">
+          <a class="m-theater-link" href="${item.theaterUrl || '#'}" target="_blank" rel="noopener">
+            🎭 ${item.descText} ↗
+          </a>
+        </div>` : '';
+    }
   }
 
   // ── Clickable category badge ──
