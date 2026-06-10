@@ -1085,40 +1085,42 @@ function gotoGu(guName) {
           <div class="dn-sub">${guName} &nbsp;·&nbsp; ${dongs.length} 個地區</div>
         </div>
       </div>
-      <div class="map-wrap" style="position: relative;">
-        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="gu-svg">
-          <path class="gu-bg-shape" d="${guPath}"/>
-          <g class="gu-dong-layer">${dongPaths}</g>
-          <g class="gu-dong-label-layer">${dongLabels}</g>
-          <g id="gu-dots-layer">${guDotsHTML}</g>
-        </svg>
-        <div class="zoom-controls">
-          <button class="zoom-btn" id="gu-zoom-in">＋</button>
-          <div class="zoom-slider-wrap">
-            <input type="range" class="zoom-slider" id="gu-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
-          </div>
-          <button class="zoom-btn" id="gu-zoom-out">－</button>
-        </div>
-      </div>
-      
-      <div class="map-table-section">
-        ${dongs.map(dongKR => {
-          const dongRests = RESTAURANTS.filter(r => r.dongKR === dongKR);
-          if (dongRests.length === 0) return '';
-          const dcn = dongCN(dongKR);
-          const chipsHTML = dongRests.map(r => {
-            const col = catColor(r.category);
-            return `<button class="map-table-chip" onclick="openModal('${r.id}')">
-              <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`;
-          }).join('');
-          return `<div class="map-table-group">
-            <div class="map-table-dong-header">
-              <span>${dcn}</span>
-              <button class="map-table-dong-goto" onclick="gotoDong('${safeAttr(dongKR)}')">看地圖 →</button>
+      <div class="map-and-list-container">
+        <div class="map-wrap" style="position: relative;">
+          <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="gu-svg">
+            <path class="gu-bg-shape" d="${guPath}"/>
+            <g class="gu-dong-layer">${dongPaths}</g>
+            <g class="gu-dong-label-layer">${dongLabels}</g>
+            <g id="gu-dots-layer">${guDotsHTML}</g>
+          </svg>
+          <div class="zoom-controls">
+            <button class="zoom-btn" id="gu-zoom-in">＋</button>
+            <div class="zoom-slider-wrap">
+              <input type="range" class="zoom-slider" id="gu-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
             </div>
-            <div class="map-table-items">${chipsHTML}</div>
-          </div>`;
-        }).join('')}
+            <button class="zoom-btn" id="gu-zoom-out">－</button>
+          </div>
+        </div>
+        
+        <div class="map-table-section">
+          ${dongs.map(dongKR => {
+            const dongRests = RESTAURANTS.filter(r => r.dongKR === dongKR);
+            if (dongRests.length === 0) return '';
+            const dcn = dongCN(dongKR);
+            const chipsHTML = dongRests.map(r => {
+              const col = catColor(r.category);
+              return `<button class="map-table-chip" onclick="openModal('${r.id}')">
+                <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`;
+            }).join('');
+            return `<div class="map-table-group">
+              <div class="map-table-dong-header">
+                <span>${dcn}</span>
+                <button class="map-table-dong-goto" onclick="gotoDong('${safeAttr(dongKR)}')">看地圖 →</button>
+              </div>
+              <div class="map-table-items">${chipsHTML}</div>
+            </div>`;
+          }).join('')}
+        </div>
       </div>
     </div>
   `;
@@ -1192,36 +1194,38 @@ function gotoDong(dongKR, highlightId = null) {
           <div class="dn-sub">${feat.properties.name_eng} &nbsp;·&nbsp; ${rests.length} 間餐廳</div>
         </div>
       </div>
-      <div class="map-wrap" style="position: relative;">
-        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="dist-svg">
-          <path class="dist-bg-shape" d="${distPath}"/>
-          ${hotelDotHTML}
-          <g id="dots-layer">${dotHTML}</g>
-        </svg>
-        <div class="zoom-controls">
-          <button class="zoom-btn" id="dist-zoom-in">＋</button>
-          <div class="zoom-slider-wrap">
-            <input type="range" class="zoom-slider" id="dist-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
+      <div class="map-and-list-container">
+        <div class="map-wrap" style="position: relative;">
+          <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="dist-svg">
+            <path class="dist-bg-shape" d="${distPath}"/>
+            ${hotelDotHTML}
+            <g id="dots-layer">${dotHTML}</g>
+          </svg>
+          <div class="zoom-controls">
+            <button class="zoom-btn" id="dist-zoom-in">＋</button>
+            <div class="zoom-slider-wrap">
+              <input type="range" class="zoom-slider" id="dist-zoom-range" min="0.8" max="8" step="0.1" value="1" orient="vertical">
+            </div>
+            <button class="zoom-btn" id="dist-zoom-out">－</button>
           </div>
-          <button class="zoom-btn" id="dist-zoom-out">－</button>
         </div>
-      </div>
-      <div class="map-table-section">
-        ${(() => {
-          const cats = [...new Set(rests.map(r => r.category).filter(Boolean))];
-          return cats.map(cat => {
-            const catRests = rests.filter(r => r.category === cat);
-            const col = catColor(cat);
-            const chipsHTML = catRests.map(r =>
-              `<button class="map-table-chip" onclick="openModal('${r.id}')">
-                <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`
-            ).join('');
-            return `<div class="map-table-group">
-              <div class="map-table-cat-header">${cat}</div>
-              <div class="map-table-items">${chipsHTML}</div>
-            </div>`;
-          }).join('');
-        })()}
+        <div class="map-table-section">
+          ${(() => {
+            const cats = [...new Set(rests.map(r => r.category).filter(Boolean))];
+            return cats.map(cat => {
+              const catRests = rests.filter(r => r.category === cat);
+              const col = catColor(cat);
+              const chipsHTML = catRests.map(r =>
+                `<button class="map-table-chip" onclick="openModal('${r.id}')">
+                  <span class="mtc-dot" style="background:${col}"></span>${r.nameCN}</button>`
+              ).join('');
+              return `<div class="map-table-group">
+                <div class="map-table-cat-header">${cat}</div>
+                <div class="map-table-items">${chipsHTML}</div>
+              </div>`;
+            }).join('');
+          })()}
+        </div>
       </div>
       <div class="dong-footer">
         <button class="btn-home-footer" onclick="renderHome()">回首頁</button>
@@ -1387,7 +1391,10 @@ function createRestaurantCardHTML(r, isFeedView = false) {
           <div class="m-name-cn">${dispName}</div>
           <div class="m-name-kr">${r.nameKR || '<span class="m-placeholder">韓文名稱待補</span>'}</div>
         </div>
-        ${mustEatBtn}
+        <div class="m-card-header-actions">
+          ${mustEatBtn}
+          ${schedBtn}
+        </div>
       </div>
 
       <div class="m-tags-row">
@@ -1410,7 +1417,6 @@ function createRestaurantCardHTML(r, isFeedView = false) {
 
       <div class="m-actions">
         ${mapReturnBtn}
-        ${schedBtn}
         ${naverBtn}
         ${googleBtn}
       </div>
