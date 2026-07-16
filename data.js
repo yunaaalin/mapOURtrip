@@ -1543,6 +1543,25 @@ const RESTAURANTS = [
     "dongEN": "Cheongunhyojadong",
     "naverUrl": "https://naver.me/FivZZffz",
     "googleUrl": "https://maps.app.goo.gl/duuD94Ga3C3tFScP9"
+  },
+  {
+    "id": "r_75",
+    "district": "yongsan",
+    "nameCN": "Hemian Brunch Bar",
+    "nameKR": "헤미안",
+    "lat": 37.539833634269456,
+    "lng": 126.98754139266285,
+    "category": "烤肉",
+    "hashtags": [],
+    "googleRating": "4.4",
+    "googleReviews": "807份",
+    "featuredDish": "",
+    "IGreels": "",
+    "addressEN": "250 Noksapyeong-daero, Yongsan District, Seoul",
+    "dongKR": "용산2가동",
+    "dongEN": "Yongsan2Gadong",
+    "naverUrl": "https://naver.me/GXAWDNzP",
+    "googleUrl": "https://maps.app.goo.gl/9LV6nbVF7hHVtU7d6"
   }
 ];
 
