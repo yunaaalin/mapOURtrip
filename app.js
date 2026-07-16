@@ -49,6 +49,7 @@ const DONG_KR_TO_CN = {
   '소공동':          '小公洞',
   '신촌동':          '新村洞',
   '청운효자동':      '清雲孝子洞',
+  '한남동':          '漢南洞',
 };
 
 const GU_KR_TO_CN = {
@@ -116,8 +117,19 @@ function loadSchedule() {
   const saved = localStorage.getItem(SCHEDULE_KEY);
   if (saved) {
     try { scheduleData = JSON.parse(saved); }
-    catch (e) { scheduleData = {}; }
+    catch (e) { scheduleData = getDefaultPresets(); }
+  } else {
+    scheduleData = getDefaultPresets();
+    saveSchedule();
   }
+}
+
+function getDefaultPresets() {
+  return {
+    '20250812': ['t_4'],   // LG藝術中心 LG SIGNATURE廳
+    '20250815': ['t_1'],   // Charlotte theater
+    '20250817': ['t_15']   // Blue Square 友利銀行廳
+  };
 }
 
 function saveSchedule() {

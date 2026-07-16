@@ -2039,5 +2039,22 @@ const THEATERS = [
     "naverUrl": "https://naver.me/52R55vYZ",
     "dongKR": "혜화동",
     "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_15",
+    "district": "yongsan",
+    "nameCN": "Blue Square 友利銀行廳",
+    "nameKR": "블루스퀘어",
+    "lat": 37.54071160711544,
+    "lng": 127.00260488462,
+    "categories": ["已購票"],
+    "hashtags": [],
+    "descText": "伊莉莎白 엘리자벳",
+    "theaterUrl": "https://www.kontenx.net/shows/2600224",
+    "addressEN": "294 Itaewon-ro, Yongsan District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/o2PhKCWHkLi9yqaN6",
+    "naverUrl": "https://naver.me/FDnC47fb",
+    "dongKR": "한남동",
+    "dongEN": "Hannam-dong"
   }
 ];
