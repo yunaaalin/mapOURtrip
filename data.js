@@ -1933,14 +1933,30 @@ const THEATERS = [
   {
     "id": "t_9",
     "district": "jongno",
-    "nameCN": "Link Art Center Dream 4館",
+    "nameCN": "Link Art Center Dream",
     "nameKR": "링크아트센터드림",
     "lat": 37.58331067654012,
     "lng": 127.00329169604102,
     "categories": ["韓國原創"],
     "hashtags": [],
-    "descText": "朴烈 박열",
-    "theaterUrl": "https://www.kontenx.net/shows/2600085",
+    "shows": [
+      {
+        "descText": "1館 - WIDERSTAND 비더슈탄트",
+        "theaterUrl": "https://www.kontenx.net/shows/2600223"
+      },
+      {
+        "descText": "2館 - 47 사칠",
+        "theaterUrl": "https://www.kontenx.net/shows/2600220"
+      },
+      {
+        "descText": "3館 - 關於死亡 죽음에 관하여",
+        "theaterUrl": "https://www.kontenx.net/shows/2600217"
+      },
+      {
+        "descText": "4館 - 朴烈 박열",
+        "theaterUrl": "https://www.kontenx.net/shows/2600085"
+      }
+    ],
     "addressEN": "123 Dongsung-gil, Jongno District, Seoul",
     "googleUrl": "https://maps.app.goo.gl/sYQBoiG82phyHctb6",
     "naverUrl": "https://naver.me/Fk73uGGZ",
@@ -2056,5 +2072,107 @@ const THEATERS = [
     "naverUrl": "https://naver.me/FDnC47fb",
     "dongKR": "한남동",
     "dongEN": "Hannam-dong"
+  },
+  {
+    "id": "t_16",
+    "district": "jung",
+    "nameCN": "忠武藝術中心 中劇場 Black",
+    "nameKR": "충무아트센터",
+    "lat": 37.565964652214646,
+    "lng": 127.01486441612285,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "藍花 푸른꽃",
+    "theaterUrl": "https://www.kontenx.net/shows/2600227",
+    "addressEN": "387 Toegye-ro, Jung District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/SUmvZZ7x6q25m69FA",
+    "naverUrl": "https://naver.me/x8tpHeCf",
+    "dongKR": "신당동",
+    "dongEN": "Sindang-dong"
+  },
+  {
+    "id": "t_17",
+    "district": "jongno",
+    "nameCN": "et theatre 1",
+    "nameKR": "이티 씨어터 원",
+    "lat": 37.58707300182262,
+    "lng": 126.99976137112074,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "藍旗魚 청새치",
+    "theaterUrl": "https://www.kontenx.net/shows/2600098",
+    "addressEN": "Seoul, Jongno District, 혜화로 17",
+    "googleUrl": "https://maps.app.goo.gl/orZcNVSgoyobQMGu9",
+    "naverUrl": "https://naver.me/GvciDSL5",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_18",
+    "district": "guro",
+    "nameCN": "D-CUBE Link Art Center",
+    "nameKR": "디큐브링크아트센터",
+    "lat": 37.50901531072758,
+    "lng": 126.88960934227119,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "那些日子 그날들",
+    "theaterUrl": "https://www.kontenx.net/shows/2600056",
+    "addressEN": "662 Gyeongin-ro, Guro District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/u29XSXtWDnuj2RFZ6",
+    "naverUrl": "https://naver.me/xeAfl3Ar",
+    "dongKR": "신도림동",
+    "dongEN": "Sindorim-dong"
+  },
+  {
+    "id": "t_19",
+    "district": "gangnam",
+    "nameCN": "ARTISTAGE 道谷",
+    "nameKR": "아티스테이지 도곡",
+    "lat": 37.4874458198479,
+    "lng": 127.04713263094864,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "INSIDE THE PLAY：ROULETTE",
+    "theaterUrl": "https://www.kontenx.net/shows/2600222",
+    "addressEN": "6층, 2753 Nambusunhwan-ro, Gangnam District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/EhPTKwvQ3XqW1paV7",
+    "naverUrl": "https://naver.me/GB35PQ8j",
+    "dongKR": "도곡1동",
+    "dongEN": "Dogok 1(il)-dong"
+  },
+  {
+    "id": "t_20",
+    "district": "jongno",
+    "nameCN": "NOL Uniplex 1館",
+    "nameKR": "NOL 유니플렉스 1관",
+    "lat": 37.5811838149866,
+    "lng": 127.00367824230227,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "WENTERN STORY 웨스턴 스토리",
+    "theaterUrl": "https://www.kontenx.net/shows/2600094",
+    "addressEN": "64 Daehak-ro 12-gil, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/W3duYXJ9FexRp65V9",
+    "naverUrl": "https://naver.me/FqWtD3IZ",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
+  },
+  {
+    "id": "t_21",
+    "district": "jongno",
+    "nameCN": "大學路 SH藝術廳",
+    "nameKR": "대학로 SH아트홀",
+    "lat": 37.579881713229454,
+    "lng": 127.0036118422712,
+    "categories": ["韓國原創"],
+    "hashtags": [],
+    "descText": "奇奇的邊緣性人格障礙日記 키키의 경계성 인격장애 다이어리",
+    "theaterUrl": "https://www.kontenx.net/shows/2600221",
+    "addressEN": "1-131 Dongsung-dong, Jongno District, Seoul",
+    "googleUrl": "https://maps.app.goo.gl/zGPTASNLkgiV47bb9",
+    "naverUrl": "https://naver.me/58NXWjqW",
+    "dongKR": "혜화동",
+    "dongEN": "Hyehwa-dong"
   }
 ];
