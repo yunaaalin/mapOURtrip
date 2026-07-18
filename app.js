@@ -1069,8 +1069,18 @@ function gotoGu(guName) {
     let labelX = dcx + ux * pushDist;
     let labelY = dcy + uy * pushDist;
 
+    // Per-dong label nudges to avoid overlap
+    const dongLabelNudge = {
+      '가회동': { dy: -32 },
+    };
+    if (dongLabelNudge[dongKR]) {
+      labelX += dongLabelNudge[dongKR].dx || 0;
+      labelY += dongLabelNudge[dongKR].dy || 0;
+    }
+
     labelX = Math.max(30, Math.min(W - 30, labelX));
     labelY = Math.max(20, Math.min(H - 20, labelY));
+
 
     dongPaths  += `<path class="gu-dong-block" d="${d}"
       onclick="gotoDong('${safeAttr(dongKR)}')"
